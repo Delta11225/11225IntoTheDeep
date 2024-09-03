@@ -16,11 +16,12 @@ public void init() {
 @Override
 public void loop(){
 
-    double power=1.0;
+    double power = -gamepad1.left_stick_y;
 
     motor1.setPower(power);
 
     telemetry.addData("power",power);
+    telemetry.addData("motor1",motor1.getPower());
 
 }
 
