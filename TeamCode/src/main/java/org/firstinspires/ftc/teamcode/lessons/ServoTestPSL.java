@@ -7,16 +7,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp
 public class ServoTestPSL extends OpMode {
    public Servo servo1 = null;
+
    @Override
-   public void init(){
+   public void init() {
       servo1 = hardwareMap.get(Servo.class, "servo_1");
    }
-   public void loop(){
 
-      double servoPosition = gamepad1.right_stick_x;
-      servo1.setPosition(servoPosition);
-      telemetry.addData("position", servoPosition);
-      telemetry.addData("servo1", servo1.getPosition());
+   @Override
+   public void loop() {
+      if (gamepad1.y) {
+         telemetry.addData("Button Y", "Pressed");
+         servo1.setPosition(0.5);
+      }
+      else if (gamepad1.b) {
+         telemetry.addData("Button B", "Pressed");
+         servo1.setPosition(1);
+      }
+      else servo1.setPosition(0);
    }
-
 }
