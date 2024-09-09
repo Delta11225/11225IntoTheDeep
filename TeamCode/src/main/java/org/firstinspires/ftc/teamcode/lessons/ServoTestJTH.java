@@ -10,12 +10,25 @@ public class ServoTestJTH extends OpMode {
     public void init() {
     servo1 = hardwareMap.get(Servo.class,"servo_1");
     }
-    public void loop(){
-        double  servoPosition = gamepad1.right_stick_x;
+    double servoPosition = 0;
 
+    public void loop(){
+        if (gamepad1.x){
+            //servo1.setPosition(0);
+            servoPosition = 0;
+        }
+        else if (gamepad1.y) {
+            servoPosition = 0.5;
+        }
+        else if (gamepad1.b){
+
+            servoPosition = 1;
+        }
         servo1.setPosition(servoPosition);
 
         telemetry.addData("position",servoPosition);
         telemetry.addData("servo 1",servo1.getPosition());
     }
 }
+
+
