@@ -16,11 +16,11 @@ public class RRFirstTrajectory extends LinearOpMode {
 
     public void runOpMode(){
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(50.5, 48, Math.toRadians(45));
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-47, 37, Math.toRadians(90)))
+                .splineToLinearHeading(new Pose2d(25, 10, Math.toRadians(180)),Math.toRadians(180))
                 .build();//center spike mark
 
 
