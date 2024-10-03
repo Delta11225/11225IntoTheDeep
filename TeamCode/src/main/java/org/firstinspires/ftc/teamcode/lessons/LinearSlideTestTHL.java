@@ -13,6 +13,7 @@ public class LinearSlideTestTHL extends OpMode {
     public void init() {
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
