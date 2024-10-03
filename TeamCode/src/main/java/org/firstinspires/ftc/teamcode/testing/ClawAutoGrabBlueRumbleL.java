@@ -38,7 +38,7 @@ public class ClawAutoGrabBlueRumbleL extends OpMode {
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())//check color blue
+             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red()) //check color blue
                  && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                  && (clawOpen == true))//claw is open
              {
@@ -48,7 +48,7 @@ public class ClawAutoGrabBlueRumbleL extends OpMode {
                 gamepad1.rumble(500);
                 clawOpen = false;
             }
-             if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())
+             if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())//check color yellow
                      && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                      && (clawOpen == true))//claw is open
              {
