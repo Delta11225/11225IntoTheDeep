@@ -14,7 +14,7 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
 
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
-    public DcMotor motor1 = null;
+    public DcMotor intake = null;
     boolean intakeRunning = true;
     String sampleColor = "none";
 
@@ -23,7 +23,7 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        motor1 = hardwareMap.get(DcMotor.class, "motor_1");
+        intake = hardwareMap.get(DcMotor.class, "intake_1");
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
 
@@ -32,44 +32,59 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red()) //check color blue
-                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                && (intakeRunning == true))//claw is open
-        {
+        if (gamepad1.right_bumper){
+
+            if (sensorDistance.getDistance(DistanceUnit.CM) >= 2){
+                intakeRunning = true;
+                intake.setPower(powerIn);
+            }
+
+            else if ((sampleColor == "blue") //check color blue
+                    && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
+                    && (intakeRunning == true))//claw is open
+            {
             sampleColor = "blue";
-            motor1.setPower(powerIn);//Taking in sample
+            intake.setPower(0);//Taking in sample
             gamepad1.rumble(500);
             intakeRunning = false;
 
-        }
-        if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())//check color yellow
+            }
+            else if ((sampleColor == "yellow")//check color yellow
                 && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                && (clawOpen == true))//claw is open
-        {
+                && (intakeRunning == true))//intake is running
+            {
             sampleColor = "yellow";
-            servo0.setPosition(rightClawClosed);//claw closed
-            servo1.setPosition(leftClawClosed);//Claw Closed
+            intake.setPower(0);//intake is running
             gamepad1.rumble(100);
-            clawOpen = false;
+            intakeRunning = false;
+            }
+
+        }
+
+        else{
+            intakeRunning = false;
+            intake.setPower(0);
         }
 
 
-        if (gamepad1.right_bumper){
-            servo0.setPosition(rightClawOpened);//Claw Open
-            servo1.setPosition(leftClawOpened);//Claw Open
-            clawOpen = true;
-            sampleColor = "none";
-        }
 
         telemetry.addData("Color vals, r", sensorColor.red());
         telemetry.addData("Color vals, g", sensorColor.green());
         telemetry.addData("Color vals, b", sensorColor.blue());
         telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
         telemetry.addData("Color Detected",sampleColor);
-        telemetry.addData("power",powerIn);
-        telemetry.addData("power",powerOut);
-        telemetry.addData("motor1",motor1.getPower());
-    }
+        telemetry.addData("intake power",intake.getPower());
+
+
+        ///////////////////SAMPLE COLOR DETECTION///////////////////////////
+
+        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())){
+            sampleColor = "blue";
+        }
+
+        if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())){
+            sampleColor = "yellow";
+        }
 
 }
-
+}
