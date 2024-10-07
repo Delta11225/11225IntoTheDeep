@@ -49,6 +49,16 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
             intakeRunning = false;
 
             }
+
+            else if ((sampleColor == "red")
+                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
+                && (intakeRunning == true))//intake is running
+            {
+                sampleColor = "red";
+                intake.setPower(powerOut);//intake is running counterclockwise
+                gamepad1.rumble(100);
+                intakeRunning = true;
+            }
             else if ((sampleColor == "yellow")//check color yellow
                 && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                 && (intakeRunning == true))//intake is running
@@ -80,6 +90,9 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
 
         if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())){
             sampleColor = "blue";
+        }
+        if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())){
+            sampleColor = "red";
         }
 
         if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())){
