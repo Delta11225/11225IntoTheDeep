@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.utility;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -48,12 +49,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * REMOVE THE TRY CATCH BLOCKS BEFORE COMPETITION.
  * ENSURE each INDIVIDUAL CALL to the hardware map is in its OWN try-catch block.
  */
-public class HardwareITD {
+public class HardwareCC {
 
     public DcMotor rearLeft = null;
     public DcMotor rearRight = null;
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
+
+    public Servo Clamp;
+    public DistanceSensor Distance;
+    public DistanceSensor RobotDistance;
+    public Servo Arm;
+    public DcMotor linearSlide;
+    public Servo Launcher;
+    public DcMotor leftScissor;
+    public DcMotor rightScissor;
+    public WebcamName logitechWebcam = null;
+
 
     private BNO055IMU imu;
 
@@ -69,9 +81,18 @@ public class HardwareITD {
     //public TrajectoryGenerator generator;
 
 
-    public HardwareITD(HardwareMap hardwareMap) {
+    public HardwareCC(HardwareMap hardwareMap) {
         // Define and initialize motors
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        Clamp = hardwareMap.get(Servo.class, "clamp");
+        Arm = hardwareMap.get(Servo.class, "arm");
+        Launcher = hardwareMap.get(Servo.class, "launcher");
+        linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
+        Distance = hardwareMap.get(DistanceSensor.class, "distance");
+        RobotDistance = hardwareMap.get(DistanceSensor.class, "robot_distance");
+        leftScissor = hardwareMap.get(DcMotor.class, "left_scissor");
+        rightScissor = hardwareMap.get(DcMotor.class, "right_scissor");
+
 
         // NEVER DO THIS
 //        try {
@@ -101,7 +122,6 @@ public class HardwareITD {
 //
     }
 }
-
 
 
 
