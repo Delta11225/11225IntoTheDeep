@@ -22,16 +22,20 @@ public class LinearSlideAutoTestPierson extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.dpad_up) {
-            linearSlideTarget = 19000;
+        if (gamepad1.y) {
+            linearSlideTarget = 20000;
         }
-        if (gamepad1.dpad_down) {
+
+        if (gamepad1.b){
+            linearSlideTarget = 11000;
+        }
+        if (gamepad1.a) {
             linearSlideTarget = 0;
         }
 
 
         linearSlide.setTargetPosition(linearSlideTarget);
-        linearSlide.setPower(0.5);
+        linearSlide.setPower(1);
         telemetry.addData("encoder", linearSlide.getCurrentPosition());
     }
 
