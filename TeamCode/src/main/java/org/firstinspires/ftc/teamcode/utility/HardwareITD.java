@@ -29,7 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.utility;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -55,7 +55,7 @@ public class HardwareITD {
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
 
-    private BNO055IMU imu;
+    private BHI260IMU imu;
 
     // State used for updating telemetry
     private Orientation angles;
@@ -71,7 +71,7 @@ public class HardwareITD {
 
     public HardwareITD(HardwareMap hardwareMap) {
         // Define and initialize motors
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = hardwareMap.get(BHI260IMU.class, "imu");
 
         // NEVER DO THIS
 //        try {
