@@ -19,17 +19,28 @@ public class LinearSlideTestTHL extends OpMode {
 
     @Override
     public void loop(){
-        if (gamepad1.dpad_up){
-            linearSlide.setPower(0.5);
+        if (gamepad1.dpad_up && linearSlide.getCurrentPosition()!=196){
+            linearSlide.setPower(-0.5);
+
+        }
+        if (gamepad1.dpad_up && linearSlide.getCurrentPosition()==196){
+            linearSlide.setPower(0);
+        }
+        if (gamepad1.dpad_down && linearSlide.getCurrentPosition()==-22259) {
+            linearSlide.setPower(0);
         }
 
-        else if (gamepad1.dpad_down){
-            linearSlide.setPower(-0.5);
+        else if (gamepad1.dpad_down && linearSlide.getCurrentPosition()!=-22259){
+            linearSlide.setPower(0.5);
         }
 
         else {
             linearSlide.setPower(0.0);
         }
+
+
+
+
 
         telemetry.addData("encoder", linearSlide.getCurrentPosition());
         telemetry.update();
