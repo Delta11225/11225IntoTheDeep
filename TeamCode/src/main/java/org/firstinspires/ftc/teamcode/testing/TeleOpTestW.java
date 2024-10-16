@@ -84,7 +84,6 @@ public class TeleOpTestW extends LinearOpMode {
     // The IMU sensor object
     IMU imu;
 
-
     public DcMotor rearLeft = null;
     public DcMotor rearRight = null;
     public DcMotor frontLeft = null;
@@ -103,7 +102,7 @@ public class TeleOpTestW extends LinearOpMode {
     double powerMultiplier = 1;
 
 
-    double temp;
+    double up;
     double side;
 
     double IMUAngle;
@@ -215,21 +214,15 @@ public class TeleOpTestW extends LinearOpMode {
         telemetry.addData("Theta", theta);
 
         //update to change starting orientation if needed
-        forward = -gamepad1.left_stick_y;
-        right = gamepad1.left_stick_x;
-        clockwise = gamepad1.right_stick_x;
+        forward = gamepad1.left_stick_y; //left joystick down
+        right = -gamepad1.left_stick_x; //left joystick left
+        clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
-        temp = (forward * Math.cos(theta) - right * Math.sin(theta));
-        side = (forward * Math.sin(theta) + right * Math.cos(theta));
+        up = (forward * Math.cos(theta) - right * Math.sin(theta)); //calculation of y'
+        side = (forward * Math.sin(theta) + right * Math.cos(theta)); //calculation of x'
 
-        forward = temp;
+        forward = up;
         right = side;
-
-        telemetry.addData("right: ", right);
-        telemetry.addData("forward: ", forward);
-        telemetry.addData("temp: ", temp);
-        telemetry.addData("side: ", side);
-        telemetry.addData("clockwise: ", clockwise);
 
         frontLeftV = forward + right + clockwise;
         rearLeftV = forward - right + clockwise;
