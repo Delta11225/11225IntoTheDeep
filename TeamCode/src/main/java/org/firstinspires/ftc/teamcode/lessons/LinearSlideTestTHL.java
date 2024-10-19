@@ -44,6 +44,7 @@ public class LinearSlideTestTHL extends OpMode {
 
 
         telemetry.addData("encoder", linearSlide.getCurrentPosition());
+        telemetry.addData("touch state",touch);
         telemetry.update();
     }
 

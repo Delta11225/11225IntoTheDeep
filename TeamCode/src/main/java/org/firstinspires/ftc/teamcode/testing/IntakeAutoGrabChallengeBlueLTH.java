@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,16 +15,16 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
 
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
-    public DcMotor intake = null;
+    public CRServo intake = null;
     boolean intakeRunning = true;
     String sampleColor = "none";
 
-    Double powerIn = 0.5;
-    Double powerOut = -0.5;
+    Double powerIn = -1.0;
+    Double powerOut = 1.0;
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        intake = hardwareMap.get(DcMotor.class, "intake_1");
+        intake = hardwareMap.get(CRServo.class, "intake_1");
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
 
@@ -76,6 +77,11 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
             intake.setPower(0);
         }
 
+        if(gamepad1.left_bumper){
+            intake.setPower(powerOut);//intake is running counterclockwise
+            intakeRunning = true;
+        }
+
 
 
         telemetry.addData("Color vals, r", sensorColor.red());
@@ -94,10 +100,13 @@ public class IntakeAutoGrabChallengeBlueLTH extends OpMode{
         if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())){
             sampleColor = "red";
         }
-
+        else {
+            sampleColor = "yellow";
+        }
+        /*
         if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())){
             sampleColor = "yellow";
         }
-
+*/
 }
 }
