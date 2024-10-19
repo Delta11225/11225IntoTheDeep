@@ -93,22 +93,9 @@ public class TeleOpTest extends OpMode {
     @Override
     public void init() {
         // Retrieve and initialize the IMU.
-        // This sample expects the IMU to be in a REV Hub and named "imu".
         imu = hardwareMap.get(IMU.class, "imu");
 
-        /* Define how the hub is mounted on the robot to get the correct Yaw, Pitch and Roll values.
-         *
-         * Two input parameters are required to fully specify the Orientation.
-         * The first parameter specifies the direction the printed logo on the Hub is pointing.
-         * The second parameter specifies the direction the USB connector on the Hub is pointing.
-         * All directions are relative to the robot, and left/right is as-viewed from behind the robot.
-         */
-
-        /* The next two lines define Hub orientation.
-         * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
-         *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
-         */
+         //To Do:  EDIT these two lines to match YOUR mounting configuration.
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
@@ -166,6 +153,7 @@ public class TeleOpTest extends OpMode {
 
 
 
+/////Do not need this code any more. Ask Ms. Weyrens why!
 
             if (orientation.getYaw(AngleUnit.DEGREES) < 0.0) {
 
@@ -191,8 +179,6 @@ public class TeleOpTest extends OpMode {
     }
 
 
-
-
     public void move(){
 
         double theta = Math.toRadians(currentAngle);
@@ -211,33 +197,19 @@ public class TeleOpTest extends OpMode {
         forward = temp;
         right = side;
 
-        telemetry.addData("right: ", right);
-        telemetry.addData("forward: ", forward);
-        telemetry.addData("temp: ", temp);
-        telemetry.addData("side: ", side);
-        telemetry.addData("clockwise: ", clockwise);
-
         frontLeftV = forward + right + clockwise;
         rearLeftV = forward - right + clockwise;
         rearRightV = forward + right - clockwise;
         frontRightV = forward - right - clockwise;
 
-        telemetry.addData("front left: ", frontLeftV);
-        telemetry.addData("rear left: ", rearLeftV);
-        telemetry.addData("rear right: ", rearRightV);
-        telemetry.addData("front right: ", frontRightV);
-
         // Handle speed control
-
-
-
-
-
-
         frontLeft.setPower(frontLeftV * powerMultiplier);
         frontRight.setPower(frontRightV * powerMultiplier);
         rearLeft.setPower(rearLeftV * powerMultiplier);
         rearRight.setPower(rearRightV * powerMultiplier);
+
+        //add speed control here
+
 
 
     }

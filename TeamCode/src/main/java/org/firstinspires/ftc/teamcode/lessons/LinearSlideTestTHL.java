@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 @TeleOp
 public class LinearSlideTestTHL extends OpMode {
@@ -11,6 +12,7 @@ public class LinearSlideTestTHL extends OpMode {
     private DcMotor linearSlide;
     double maxHeightLS = 22000;//22104
     double minHeightLS = 0;
+    TouchSensor touch;
 
 
     @Override
@@ -19,6 +21,7 @@ public class LinearSlideTestTHL extends OpMode {
         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         linearSlide.setDirection(DcMotor.Direction.REVERSE);
+        touch = hardwareMap.get(TouchSensor.class, "touch");
 
     }
 
@@ -28,7 +31,7 @@ public class LinearSlideTestTHL extends OpMode {
             linearSlide.setPower(1);
 
         }
-        else if (gamepad1.dpad_down && linearSlide.getCurrentPosition()>=minHeightLS) {
+        else if (gamepad1.dpad_down && touch.isPressed()==false) {
             linearSlide.setPower(-1);
         }
 

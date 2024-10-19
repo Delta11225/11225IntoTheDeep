@@ -117,22 +117,9 @@ public class TeleOpTestW extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         // Retrieve and initialize the IMU.
-
         imu = hardwareMap.get(IMU.class, "imu");
 
-        /* Define how the hub is mounted on the robot to get the correct Yaw, Pitch and Roll values.
-         *
-         * Two input parameters are required to fully specify the Orientation.
-         * The first parameter specifies the direction the printed logo on the Hub is pointing.
-         * The second parameter specifies the direction the USB connector on the Hub is pointing.
-         * All directions are relative to the robot, and left/right is as-viewed from behind the robot.
-         */
-
-        /* The next two lines define Hub orientation.
-         * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
-         *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
-         */
+         //To Do:  EDIT these two lines to match YOUR mounting configuration.
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
@@ -172,40 +159,17 @@ public class TeleOpTestW extends LinearOpMode {
         while (!isStopRequested()) {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
 
-
             telemetry.addData("currentAngle", "%.1f", currentAngle);
             telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
-            telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
-            telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
             telemetry.update();
 
             currentAngle = orientation.getYaw(AngleUnit.DEGREES);
 
             move();
 
-            /*
-            if (orientation.getYaw(AngleUnit.DEGREES) < 0.0) {
-
-                telemetry.update();
-                move();
-
-                currentAngle = orientation.getYaw(AngleUnit.DEGREES) + 360;
-                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
-            }
-
-            else  { //if abel is greater than 0 degrees (not negative)
-
-                telemetry.update();
-                move();
-
-                currentAngle = orientation.getYaw(AngleUnit.DEGREES);
-                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
-            }
-
-            telemetry.addLine("out of loop");
-*/
         }
     }
+
     public void move(){
 
         double theta = Math.toRadians(currentAngle);
@@ -235,12 +199,6 @@ public class TeleOpTestW extends LinearOpMode {
         telemetry.addData("front right: ", frontRightV);
 
         // Handle speed control
-
-
-
-
-
-
         frontLeft.setPower(frontLeftV * powerMultiplier);
         frontRight.setPower(frontRightV * powerMultiplier);
         rearLeft.setPower(rearLeftV * powerMultiplier);
