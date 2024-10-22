@@ -130,16 +130,16 @@ public class TeleOpTestW extends LinearOpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         //initialize drive motors
-        rearLeft = hardwareMap.dcMotor.get("rear_left");
+        rearLeft = hardwareMap.dcMotor.get("leftRear");
         rearLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        frontLeft = hardwareMap.dcMotor.get("front_left");
+        frontLeft = hardwareMap.dcMotor.get("leftFront");
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        frontRight = hardwareMap.dcMotor.get("front_right");
+        frontRight = hardwareMap.dcMotor.get("rightFront");
         frontRight.setDirection(DcMotor.Direction.FORWARD);
 
-        rearRight = hardwareMap.dcMotor.get("rear_right");
+        rearRight = hardwareMap.dcMotor.get("rightRear");
         rearRight.setDirection(DcMotor.Direction.FORWARD);
 
         //initialize drive motors

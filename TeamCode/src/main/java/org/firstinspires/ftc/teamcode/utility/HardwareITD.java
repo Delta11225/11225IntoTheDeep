@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.utility;
 
 import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -55,6 +56,13 @@ public class HardwareITD {
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
 
+    public DcMotor ascentArm;
+    public DcMotor linearSlide;
+    public Servo Intake;
+    public Servo Claw;
+    public ColorSensor sensorColor;
+    public DistanceSensor sensorDistance;
+
     private BHI260IMU imu;
 
     // State used for updating telemetry
@@ -68,39 +76,9 @@ public class HardwareITD {
     //public SampleMecanumDrive drive;
     //public TrajectoryGenerator generator;
 
-
-    public HardwareITD(HardwareMap hardwareMap) {
-        // Define and initialize motors
-        imu = hardwareMap.get(BHI260IMU.class, "imu");
-
-        // NEVER DO THIS
-//        try {
-        rearLeft = hardwareMap.dcMotor.get("rear_left");
-        rearLeft.setDirection(DcMotor.Direction.FORWARD);
-//        } catch (Exception ignored) {
-//        }
-
-//        try {
-        frontLeft = hardwareMap.dcMotor.get("front_left");
-        frontLeft.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-//        } catch (Exception ignored) {
-//        }
-
-//        try {
-        frontRight = hardwareMap.dcMotor.get("front_right");
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-//        } catch (Exception ignored) {
-//        }
-
-//        try {
-        rearRight = hardwareMap.dcMotor.get("rear_right");
-        rearRight.setDirection(DcMotor.Direction.REVERSE);
-//        } catch (Exception ignored) {
-//        }
-
 //
     }
-}
+
 
 
 
