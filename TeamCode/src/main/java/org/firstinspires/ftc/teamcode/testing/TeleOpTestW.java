@@ -34,12 +34,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 /*
  * This OpMode shows how to use the new universal IMU interface. This
@@ -81,13 +83,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 @TeleOp
 
 public class TeleOpTestW extends LinearOpMode {
-    // The IMU sensor object
-    IMU imu;
 
-    public DcMotor rearLeft = null;
-    public DcMotor rearRight = null;
-    public DcMotor frontLeft = null;
-    public DcMotor frontRight = null;
+ HardwareITD robot;
+
     private ElapsedTime runtime = new ElapsedTime();
 
     double frontLeftV;
@@ -105,7 +103,6 @@ public class TeleOpTestW extends LinearOpMode {
     double up;
     double side;
 
-    double IMUAngle;
     double currentAngle;
 
 
@@ -116,48 +113,24 @@ public class TeleOpTestW extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // Retrieve and initialize the IMU.
-        imu = hardwareMap.get(IMU.class, "imu");
-
-         //To Do:  EDIT these two lines to match YOUR mounting configuration.
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
-
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        // Now initialize the IMU with this mounting orientation
-        // Note: if you choose two conflicting directions, this initialization will cause a code exception.
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        //initialize drive motors
 
         //initialize drive motors
-        rearLeft = hardwareMap.dcMotor.get("leftRear");
-        rearLeft.setDirection(DcMotor.Direction.REVERSE);
-
-        frontLeft = hardwareMap.dcMotor.get("leftFront");
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-
-        frontRight = hardwareMap.dcMotor.get("rightFront");
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-
-        rearRight = hardwareMap.dcMotor.get("rightRear");
-        rearRight.setDirection(DcMotor.Direction.FORWARD);
-
-        //initialize drive motors
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        rearLeft.setPower(0);
-        rearRight.setPower(0);
+        robot.frontLeft.setPower(0);
+        robot.frontRight.setPower(0);
+        robot.rearLeft.setPower(0);
+        robot.rearRight.setPower(0);
 
         waitForStart();
 
         currentAngle = 0;
         runtime.reset();
-        imu.resetYaw();
+        robot.imu.resetYaw();
 
 
         // Loop and update the dashboard
         while (!isStopRequested()) {
-            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            YawPitchRollAngles orientation = robot.imu.getRobotYawPitchRollAngles();
 
             telemetry.addData("currentAngle", "%.1f", currentAngle);
             telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
@@ -193,16 +166,16 @@ public class TeleOpTestW extends LinearOpMode {
         rearRightV = forward + right - clockwise;
         frontRightV = forward - right - clockwise;
 
-        telemetry.addData("front left: ", frontLeftV);
-        telemetry.addData("rear left: ", rearLeftV);
-        telemetry.addData("rear right: ", rearRightV);
-        telemetry.addData("front right: ", frontRightV);
+        telemetry.addData("front left: ", robot.frontLeft);
+        telemetry.addData("rear left: ", robot.rearLeft);
+        telemetry.addData("rear right: ", robot.rearRight);
+        telemetry.addData("front right: ", robot.frontRight);
 
         // Handle speed control
-        frontLeft.setPower(frontLeftV * powerMultiplier);
-        frontRight.setPower(frontRightV * powerMultiplier);
-        rearLeft.setPower(rearLeftV * powerMultiplier);
-        rearRight.setPower(rearRightV * powerMultiplier);
+        robot.frontLeft.setPower(frontLeftV * powerMultiplier);
+        robot.frontRight.setPower(frontRightV * powerMultiplier);
+        robot.rearLeft.setPower(rearLeftV * powerMultiplier);
+        robot.rearRight.setPower(rearRightV * powerMultiplier);
 
 
     }
