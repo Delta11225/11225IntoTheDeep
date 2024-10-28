@@ -27,14 +27,18 @@ public class AutoBlueFront extends LinearOpMode {
         Pose2d startPose = new Pose2d(-3.5, 60, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose) {
+        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
             // linear slide stuff here
-            .lineToLinearHeading(new Pose2d(-60, 60, Math.toRadians(90)));
-        }
+            .lineToLinearHeading(new Pose2d(3.5, 33, Math.toRadians(270)))
+            .waitSeconds(1.5)
+            .lineToLinearHeading(new Pose2d(-49, 50, Math.toRadians(90)))
+            .waitSeconds(1.5)
+            .lineToLinearHeading(new Pose2d(67, 55, Math.toRadians(90)))//PARK yo net zone (no points)
+            .build();
+
 
         waitForStart();
-
-      //  drive.followTrajectorySequence(traj1);
+        drive.followTrajectorySequence(traj1);
 
 
     }
