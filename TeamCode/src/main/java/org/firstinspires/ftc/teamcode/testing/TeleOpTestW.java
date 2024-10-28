@@ -92,6 +92,7 @@ public class TeleOpTestW extends LinearOpMode {
     double rearLeftV;
     double frontRightV;
     double rearRightV;
+    double denominator;
 
     double forward;
     double right;
@@ -152,7 +153,7 @@ public class TeleOpTestW extends LinearOpMode {
 
         //update to change starting orientation if needed
         forward = gamepad1.left_stick_y; //left joystick down
-        right = -gamepad1.left_stick_x; //left joystick left
+        right = -gamepad1.left_stick_x*1.1; //left joystick left, adjusting for strafe
         clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         up = (forward * Math.cos(theta) - right * Math.sin(theta)); //calculation of y'
@@ -161,10 +162,11 @@ public class TeleOpTestW extends LinearOpMode {
         forward = up;
         right = side;
 
-        frontLeftV = forward + right + clockwise;
-        rearLeftV = forward - right + clockwise;
-        rearRightV = forward + right - clockwise;
-        frontRightV = forward - right - clockwise;
+        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise),1);
+        frontLeftV = (forward + right + clockwise)/denominator;
+        rearLeftV = (forward - right + clockwise)/denominator;
+        rearRightV = (forward + right - clockwise)/denominator;
+        frontRightV = (forward - right - clockwise)/denominator;
 
         telemetry.addData("front left: ", robot.frontLeft);
         telemetry.addData("rear left: ", robot.rearLeft);

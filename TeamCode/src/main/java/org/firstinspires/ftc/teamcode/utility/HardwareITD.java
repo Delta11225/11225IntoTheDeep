@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -68,6 +69,7 @@ public class HardwareITD {
     public ColorSensor sensorColor;
     public DistanceSensor Distance;
     public DistanceSensor robotDistance;
+    public TouchSensor touch;
 
     // State used for updating telemetry
     private Orientation angles;
@@ -104,6 +106,7 @@ public class HardwareITD {
         Distance = hardwareMap.get(DistanceSensor.class, "distance");
         robotDistance = hardwareMap.get(DistanceSensor.class, "robot_distance");
         sensorColor = hardwareMap.get(ColorSensor.class, "color");
+        touch = hardwareMap.get(TouchSensor.class, "touch");
 
        //initializing drive motors
         rearLeft = hardwareMap.dcMotor.get("leftRear");
