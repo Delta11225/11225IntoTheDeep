@@ -29,14 +29,19 @@
 
 package org.firstinspires.ftc.teamcode.utility;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 //import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
@@ -49,13 +54,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * ENSURE each INDIVIDUAL CALL to the hardware map is in its OWN try-catch block.
  */
 public class HardwareITD {
-
+    public IMU imu;
+    //declaring drive motors
     public DcMotor rearLeft = null;
     public DcMotor rearRight = null;
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
-
-    private BHI260IMU imu;
+    //declaring peripheral motors/sensors
+    public DcMotor ascentArm;
+    public DcMotor linearSlide;
+    public Servo Arm;
+    public Servo Intake;
+    public Servo Claw;
+    public ColorSensor sensorColor;
+    public DistanceSensor Distance;
+    public DistanceSensor robotDistance;
+    public TouchSensor touch;
 
     // State used for updating telemetry
     private Orientation angles;
@@ -67,40 +81,50 @@ public class HardwareITD {
     // RoadRunner driver
     //public SampleMecanumDrive drive;
     //public TrajectoryGenerator generator;
+    public HardwareITD(@NonNull HardwareMap hardwareMap) {
 
+        // Retrieve and initialize the IMU.
+        imu = hardwareMap.get(IMU.class, "imu");
 
-    public HardwareITD(HardwareMap hardwareMap) {
+        //To Do:  EDIT these two lines to match YOUR mounting configuration.
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+
+        // Now initialize the IMU with this mounting orientation
+        // Note: if you choose two conflicting directions, this initialization will cause a code exception.
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
         // Define and initialize motors
-        imu = hardwareMap.get(BHI260IMU.class, "imu");
+        //initializing peripheral motors
+        Claw = hardwareMap.get(Servo.class, "claw");
+        Intake = hardwareMap.get(Servo.class, "intake");
+        Arm = hardwareMap.get(Servo.class, "arm");
+        ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
+        linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
+        Distance = hardwareMap.get(DistanceSensor.class, "distance");
+        robotDistance = hardwareMap.get(DistanceSensor.class, "robot_distance");
+        sensorColor = hardwareMap.get(ColorSensor.class, "color");
+        touch = hardwareMap.get(TouchSensor.class, "touch");
 
-        // NEVER DO THIS
-//        try {
-        rearLeft = hardwareMap.dcMotor.get("rear_left");
-        rearLeft.setDirection(DcMotor.Direction.FORWARD);
-//        } catch (Exception ignored) {
-//        }
+       //initializing drive motors
+        rearLeft = hardwareMap.dcMotor.get("leftRear");
+        rearLeft.setDirection(DcMotor.Direction.REVERSE);
 
-//        try {
-        frontLeft = hardwareMap.dcMotor.get("front_left");
-        frontLeft.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-//        } catch (Exception ignored) {
-//        }
+        frontLeft = hardwareMap.dcMotor.get("leftFront");
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
 
-//        try {
-        frontRight = hardwareMap.dcMotor.get("front_right");
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-//        } catch (Exception ignored) {
-//        }
+        frontRight = hardwareMap.dcMotor.get("rightFront");
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
 
-//        try {
-        rearRight = hardwareMap.dcMotor.get("rear_right");
-        rearRight.setDirection(DcMotor.Direction.REVERSE);
-//        } catch (Exception ignored) {
-//        }
+        rearRight = hardwareMap.dcMotor.get("rightRear");
+        rearRight.setDirection(DcMotor.Direction.FORWARD);
 
-//
     }
-}
+
+    }
+
 
 
 
