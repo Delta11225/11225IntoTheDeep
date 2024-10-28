@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.lessons;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,18 +24,19 @@ public class LinearSlideAutoTestChallengeTL extends OpMode {
         linearSlide.setDirection(DcMotor.Direction.REVERSE);
         linearSlide.setTargetPosition(linearSlideTarget);
         linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        linearSlide.setZeroPowerBehavior(BRAKE);
         touch = hardwareMap.get(TouchSensor.class, "touch");
     }
 
     @Override
     public void loop() {
         if (gamepad1.y) {
-            linearSlideTarget = 22000;
+            linearSlideTarget = 4000;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
         if (gamepad1.x) {
-            linearSlideTarget = 11000;
+            linearSlideTarget = 2000;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.5);
         }
