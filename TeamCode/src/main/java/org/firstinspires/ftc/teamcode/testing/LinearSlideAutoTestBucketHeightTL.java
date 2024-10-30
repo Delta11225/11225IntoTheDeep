@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lessons;
+package org.firstinspires.ftc.teamcode.testing;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
 @TeleOp
-public class LinearSlideAutoTestChallengeTL extends OpMode {
+public class LinearSlideAutoTestBucketHeightTL extends OpMode {
 
     private DcMotor linearSlide;
     private int linearSlideTarget = 0;
@@ -47,19 +47,9 @@ public class LinearSlideAutoTestChallengeTL extends OpMode {
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.5);
         }
-        if (touch.isPressed() == true) {
+        if (touch.isPressed()==true){
             linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
             linearSlide.setPower(0);
-        }
-        if (gamepad1.dpad_up) {
-            linearSlideTarget = 1875;
-            linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
-        }
-        if (gamepad1.dpad_down) {
-            linearSlideTarget = 538;
-            linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
         }
         telemetry.addData("encoder", linearSlide.getCurrentPosition());
     }
