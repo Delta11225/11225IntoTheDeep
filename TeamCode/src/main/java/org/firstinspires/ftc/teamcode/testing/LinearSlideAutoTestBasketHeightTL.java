@@ -9,15 +9,15 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
 @TeleOp
-public class LinearSlideAutoTestBucketHeightTL extends OpMode {
+public class LinearSlideAutoTestBasketHeightTL extends OpMode {
 
     private DcMotor linearSlide;
     private int linearSlideTarget = 0;
     private int linearSlideZero = 0;
     boolean sliderunning = false;
     TouchSensor touch;
-    int highBucketHeight = 3600;
-    int lowBucketHeight = 1675;
+    int highBasketHeight = 3600;
+    int lowBasketHeight = 1675;
 
 
     public void init() {
@@ -33,12 +33,12 @@ public class LinearSlideAutoTestBucketHeightTL extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.y) {
-            linearSlideTarget = highBucketHeight;
+            linearSlideTarget = highBasketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
         if (gamepad1.x) {
-            linearSlideTarget = lowBucketHeight;
+            linearSlideTarget = lowBasketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }

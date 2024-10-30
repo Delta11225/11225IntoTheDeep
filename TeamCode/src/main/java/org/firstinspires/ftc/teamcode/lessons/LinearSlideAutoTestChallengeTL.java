@@ -16,8 +16,8 @@ public class LinearSlideAutoTestChallengeTL extends OpMode {
     private int linearSlideZero = 0;
     boolean sliderunning = false;
     TouchSensor touch;
-    int highBucketHeight = 3600;
-    int lowBucketHeight = 1675;
+    int highBasketHeight = 3600;
+    int lowBasketHeight = 1675;
     int highChamberHeight = 1875;
     int lowChamberHeight = 538;
 
@@ -34,12 +34,12 @@ public class LinearSlideAutoTestChallengeTL extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.y) {
-            linearSlideTarget = highBucketHeight;
+            linearSlideTarget = highBasketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
         if (gamepad1.x) {
-            linearSlideTarget = lowBucketHeight;
+            linearSlideTarget = lowBasketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
