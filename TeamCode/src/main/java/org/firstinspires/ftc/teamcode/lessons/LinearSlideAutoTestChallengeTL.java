@@ -18,7 +18,8 @@ public class LinearSlideAutoTestChallengeTL extends OpMode {
     TouchSensor touch;
     int highBucketHeight = 3600;
     int lowBucketHeight = 1675;
-
+    int highChamberHeight = 1875;
+    int lowChamberHeight = 538;
 
     public void init() {
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
