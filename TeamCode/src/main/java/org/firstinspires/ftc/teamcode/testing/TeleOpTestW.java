@@ -127,15 +127,11 @@ public class TeleOpTestW extends LinearOpMode {
         right = side;
 
         denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise),1);
+
         frontLeftV = (forward + right + clockwise)/denominator;
         rearLeftV = (forward - right + clockwise)/denominator;
         rearRightV = (forward + right - clockwise)/denominator;
         frontRightV = (forward - right - clockwise)/denominator;
-
-        telemetry.addData("front left: ", robot.frontLeft);
-        telemetry.addData("rear left: ", robot.rearLeft);
-        telemetry.addData("rear right: ", robot.rearRight);
-        telemetry.addData("front right: ", robot.frontRight);
 
         // Handle speed control
         robot.frontLeft.setPower(frontLeftV * powerMultiplier);
@@ -147,15 +143,15 @@ public class TeleOpTestW extends LinearOpMode {
 
         //fast mode
         if (gamepad1.left_bumper) {
-            powerMultiplier = .7;}
+            powerMultiplier = .8;}
 
         //slow mode
         else if (gamepad1.right_bumper){
-            powerMultiplier= .15;
+            powerMultiplier= .3;
         }
         //normal mode
         else {
-            powerMultiplier= .4;
+            powerMultiplier= .6;
         }
 
     }
