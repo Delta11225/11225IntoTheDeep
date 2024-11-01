@@ -67,8 +67,7 @@ public class HardwareITD {
     public Servo Intake;
     public Servo Claw;
     public ColorSensor sensorColor;
-    public DistanceSensor Distance;
-    public DistanceSensor robotDistance;
+    public DistanceSensor sensorDistance;
     public TouchSensor touch;
 
     // State used for updating telemetry
@@ -103,9 +102,8 @@ public class HardwareITD {
         Arm = hardwareMap.get(Servo.class, "arm");
         ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
-        Distance = hardwareMap.get(DistanceSensor.class, "distance");
-        robotDistance = hardwareMap.get(DistanceSensor.class, "robot_distance");
-        sensorColor = hardwareMap.get(ColorSensor.class, "color");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //claw distance?
+        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         touch = hardwareMap.get(TouchSensor.class, "touch");
 
        //initializing drive motors

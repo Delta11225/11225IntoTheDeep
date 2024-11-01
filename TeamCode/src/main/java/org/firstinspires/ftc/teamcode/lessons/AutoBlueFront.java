@@ -30,7 +30,7 @@ public class AutoBlueFront extends LinearOpMode {
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
             // linear slide stuff here
             .lineToLinearHeading(new Pose2d(-60, 60, Math.toRadians(90)))
-                    .build();
+            .build();
 
 
         waitForStart();

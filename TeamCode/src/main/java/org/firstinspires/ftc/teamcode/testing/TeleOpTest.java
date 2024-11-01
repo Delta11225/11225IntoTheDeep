@@ -1,12 +1,19 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Func;
@@ -75,9 +82,40 @@ public class TeleOpTest extends OpMode {
     double right;
     double clockwise;
     int linearSlideZeroOffset = 0;
-    double powerMultiplier = 1;
+    double powerMultiplier = 0.7;
     double deadZone = Math.abs(0.2);
 
+    //from IntakeAutoGrabChallengeBlueLT
+    ColorSensor sensorColor;
+    DistanceSensor sensorDistance;
+    public CRServo intake = null;
+    boolean intakeRunning = true;
+    String sampleColor = "none";
+
+    //from LinearSlideAutoTestChallengeLT
+    private DcMotor linearSlide;
+    private int linearSlideTarget = 0;
+    private int linearSlideZero = 0;
+    boolean sliderunning = false;
+    TouchSensor touch;
+    int highBucketHeight = 3600;
+    int lowBucketHeight = 1675;
+    int highChamberHeight = 1875;
+    int lowChamberHeight = 538;
+
+    //from ServoTestJTH
+    public Servo intakeArm = null;
+    double servoPosition = 0.84;
+
+    double IntakeArmUp = .84;
+    double IntakeArmHold = .6;
+    double IntakeArmDown = .5;
+
+
+    double powerIn = -.5;
+    double powerOut = 1.0;
+
+    double denominator;
     double temp;
     double side;
 
@@ -106,16 +144,16 @@ public class TeleOpTest extends OpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         //robot = new HardwareITD(hardwareMap);
-        rearLeft = hardwareMap.dcMotor.get("rear_left");
+        rearLeft = hardwareMap.dcMotor.get("leftRear");
         rearLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        frontLeft = hardwareMap.dcMotor.get("front_left");
+        frontLeft = hardwareMap.dcMotor.get("leftFront");
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        frontRight = hardwareMap.dcMotor.get("front_right");
+        frontRight = hardwareMap.dcMotor.get("rightFront");
         frontRight.setDirection(DcMotor.Direction.FORWARD);
 
-        rearRight = hardwareMap.dcMotor.get("rear_right");
+        rearRight = hardwareMap.dcMotor.get("rightRear");
         rearRight.setDirection(DcMotor.Direction.FORWARD);
 
         //initialize drive motors
@@ -124,7 +162,24 @@ public class TeleOpTest extends OpMode {
         rearLeft.setPower(0);
         rearRight.setPower(0);
 
+        //////////////////intake & auto grab///////////////////////
+        intake = hardwareMap.get(CRServo.class, "intake");
+        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
 
+        //////////////////linear slide///////////////////////
+        linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
+        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearSlide.setDirection(DcMotor.Direction.REVERSE);
+        linearSlide.setTargetPosition(linearSlideTarget);
+        linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        linearSlide.setZeroPowerBehavior(BRAKE);
+        touch = hardwareMap.get(TouchSensor.class, "touch");
+
+        //////////////////intake arm///////////////////////
+        intakeArm = hardwareMap.get(Servo.class,"intake_arm");
+
+        intakeArm.setPosition(IntakeArmUp);
 
     }
 
@@ -150,46 +205,22 @@ public class TeleOpTest extends OpMode {
 
             currentAngle = orientation.getYaw(AngleUnit.DEGREES);
             move();
+            peripheral();
 
 
-
-/////Do not need this code any more. Ask Ms. Weyrens why!
-
-            if (orientation.getYaw(AngleUnit.DEGREES) < 0.0) {
-
-                telemetry.update();
-                move();
-
-                currentAngle = orientation.getYaw(AngleUnit.DEGREES) + 360;
-                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
-            }
-
-            if (orientation.getYaw(AngleUnit.DEGREES) >= 0.0) {
-
-                telemetry.update();
-                move();
-
-                currentAngle = orientation.getYaw(AngleUnit.DEGREES);
-                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
-            }
-
-            telemetry.addLine("null angle");
-
-
-    }
-
-
-    public void move(){
+        }
+/////////////////////////move sequence//////////////////////////
+    public void move() {
 
         double theta = Math.toRadians(currentAngle);
 
         telemetry.addData("CurrentAngle", currentAngle);
         telemetry.addData("Theta", theta);
 
-        //update to change starting orientation if needed
-        forward = -gamepad1.left_stick_y;
-        right = gamepad1.left_stick_x;
-        clockwise = gamepad1.right_stick_x;
+        //Orientation set for robot facing driver
+        forward = gamepad1.left_stick_y; //left joystick down
+        right = -gamepad1.left_stick_x*1.1; //left joystick left, adjusting for strafe
+        clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         temp = (forward * Math.cos(theta) - right * Math.sin(theta));
         side = (forward * Math.sin(theta) + right * Math.cos(theta));
@@ -197,10 +228,11 @@ public class TeleOpTest extends OpMode {
         forward = temp;
         right = side;
 
-        frontLeftV = forward + right + clockwise;
-        rearLeftV = forward - right + clockwise;
-        rearRightV = forward + right - clockwise;
-        frontRightV = forward - right - clockwise;
+        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise),1);
+        frontLeftV = (forward + right + clockwise)/denominator;
+        rearLeftV = (forward - right + clockwise)/denominator;
+        rearRightV = (forward + right - clockwise)/denominator;
+        frontRightV = (forward - right - clockwise)/denominator;
 
         // Handle speed control
         frontLeft.setPower(frontLeftV * powerMultiplier);
@@ -210,9 +242,113 @@ public class TeleOpTest extends OpMode {
 
         //add speed control here
 
+        if (gamepad1.left_bumper) {
+            powerMultiplier = .8;//FAST MODE
+        }
+        else if (gamepad1.right_bumper){
+            powerMultiplier=.3; //SLOW MODE
+            }
+        else {
+            powerMultiplier=.6; //NORMAL MODE
+        }
+
+
 
 
     }
 
+    public void peripheral() {
 
-}
+
+        //////////////////intake & auto grab///////////////////////
+
+          //////ENTER DEBUGGED CODE HERE!!!///////
+
+//////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
+      /*          if (gamepad2.left_trigger > .5) {
+                    intakeRunning = true;
+                    intake.setPower(powerIn);
+                }
+                else if (gamepad2.right_trigger > .5) {
+                    intake.setPower(powerOut);//intake is running counterclockwise
+                    intakeRunning = true;
+                }
+                else {
+                    intakeRunning = false;
+                    intake.setPower(0);
+                }
+
+
+
+*/
+///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
+
+                if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                    sampleColor = "blue";
+                }
+                if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                    sampleColor = "red";
+                }
+                else {
+                    sampleColor = "yellow";
+                }
+
+        telemetry.addData("Color vals, r", sensorColor.red());
+        telemetry.addData("Color vals, g", sensorColor.green());
+        telemetry.addData("Color vals, b", sensorColor.blue());
+        telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
+        telemetry.addData("Color Detected", sampleColor);
+        telemetry.addData("intake power", intake.getPower());
+
+//////////////////////////////////////////linear slide///////////////////////
+        if (gamepad2.y) {
+            linearSlideTarget = highBucketHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+        }
+        if (gamepad2.x) {
+            linearSlideTarget = lowBucketHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+        }
+        if (gamepad2.a) {
+            linearSlideTarget = 0;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(0.5);
+        }
+        if (touch.isPressed() == true) {
+            linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
+            linearSlide.setPower(0);
+        }
+        if (gamepad2.b) {
+            linearSlideTarget = 1875;//high chamber height
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+
+        }
+        telemetry.addData("encoder", linearSlide.getCurrentPosition());
+
+
+////////////////////////////////////////intake arm///////////////////////
+        if (gamepad2.dpad_down){
+            servoPosition = IntakeArmDown;
+        }
+        else if (gamepad2.dpad_left) {
+            servoPosition = IntakeArmHold;
+        }
+        else if (gamepad2.dpad_up){
+            servoPosition = IntakeArmUp;
+        }
+
+        intakeArm.setPosition(servoPosition);
+
+        telemetry.addData("position",servoPosition);
+        telemetry.addData("intake arm",intakeArm.getPosition());
+    }
+
+
+
+
+
+ }
+
