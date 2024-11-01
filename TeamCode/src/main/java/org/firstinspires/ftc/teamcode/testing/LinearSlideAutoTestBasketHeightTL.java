@@ -24,7 +24,6 @@ public class LinearSlideAutoTestBasketHeightTL extends OpMode {
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlide.setDirection(DcMotor.Direction.REVERSE);
-        linearSlide.setTargetPosition(linearSlideTarget);
         linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         linearSlide.setZeroPowerBehavior(BRAKE);
         touch = hardwareMap.get(TouchSensor.class, "touch");
