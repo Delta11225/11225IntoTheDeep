@@ -207,7 +207,6 @@ public class TeleOpTest extends OpMode {
             move();
             peripheral();
 
-
         }
 /////////////////////////move sequence//////////////////////////
     public void move() {

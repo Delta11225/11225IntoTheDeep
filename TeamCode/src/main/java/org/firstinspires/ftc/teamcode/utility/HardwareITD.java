@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utility;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -35,6 +36,7 @@ public class HardwareITD {
     public ColorSensor sensorColor;
     public DistanceSensor sensorDistance;
     public TouchSensor touch;
+    RevBlinkinLedDriver lights;
 
     // State used for updating telemetry
     private Orientation angles;
@@ -71,6 +73,10 @@ public class HardwareITD {
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //claw distance?
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         touch = hardwareMap.get(TouchSensor.class, "touch");
+
+        //LED sequence
+        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
 
        //initializing drive motors
         rearLeft = hardwareMap.dcMotor.get("leftRear");
