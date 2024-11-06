@@ -112,8 +112,8 @@ public class TeleOpTest extends OpMode {
     double IntakeArmDown = .5;
 
 
-    double powerIn = -.5;
-    double powerOut = 1.0;
+    double powerIn = 1.0;
+    double powerOut = -1.0;
 
     double denominator;
     double temp;
@@ -262,7 +262,49 @@ public class TeleOpTest extends OpMode {
 
         //////////////////intake & auto grab///////////////////////
 
-          //////ENTER DEBUGGED CODE HERE!!!///////
+        if (gamepad2.right_bumper) {
+
+            intakeRunning = true;
+            intake.setPower(powerIn);
+
+            if ((sampleColor == "blue") //check color blue
+                    && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
+                    && (intakeRunning == true))//claw is open
+            {
+                sampleColor = "blue";
+                intake.setPower(0);//Taking in sample
+                gamepad1.rumble(500);
+                intakeRunning = false;
+
+            }
+
+            else if ((sampleColor == "yellow")//check color yellow
+                    && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
+                    && (intakeRunning == true))//intake is running
+            {
+                sampleColor = "yellow";
+                intake.setPower(0);//intake is running
+                gamepad1.rumble(100);
+                intakeRunning = false;
+            }
+        }
+
+
+        else{
+            intakeRunning = false;
+            intake.setPower(0);
+        }
+
+        if((sampleColor == "red")
+                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) //distance less than 2 cm
+        {
+            intake.setPower(powerOut);//intake is running counterclockwise
+            intakeRunning = true;
+        }
+        if(gamepad2.left_bumper){
+            intake.setPower(powerOut);//intake is running counterclockwise
+            intakeRunning = true;
+        }
 
 //////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
       /*          if (gamepad2.left_trigger > .5) {

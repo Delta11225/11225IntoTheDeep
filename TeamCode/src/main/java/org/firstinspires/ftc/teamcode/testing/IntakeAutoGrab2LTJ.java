@@ -46,15 +46,9 @@ public class IntakeAutoGrab2LTJ extends OpMode{
             gamepad1.rumble(500);
             intakeRunning = false;
 
-        } else if ((sampleColor == "red")
-                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                && (intakeRunning == true))//intake is running
-        {
-            sampleColor = "red";
-            intake.setPower(powerOut);//intake is running counterclockwise
-            gamepad1.rumble(100);
-            intakeRunning = true;
-        } else if ((sampleColor == "yellow")//check color yellow
+        }
+
+        else if ((sampleColor == "yellow")//check color yellow
                 && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                 && (intakeRunning == true))//intake is running
         {
@@ -71,6 +65,12 @@ public class IntakeAutoGrab2LTJ extends OpMode{
             intake.setPower(0);
         }
 
+        if((sampleColor == "red")
+                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) //distance less than 2 cm
+        {
+            intake.setPower(powerOut);//intake is running counterclockwise
+            intakeRunning = true;
+        }
         if(gamepad1.left_bumper){
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
