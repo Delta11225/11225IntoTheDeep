@@ -31,8 +31,8 @@ public class HardwareITD {
     public DcMotor ascentArm;
     public DcMotor linearSlide;
     public Servo intakeArm;
-    public CRServo Intake;
-    public Servo Claw;
+    public CRServo intake;
+    public Servo claw;
     public ColorSensor sensorColor;
     public DistanceSensor sensorDistance;
     public TouchSensor touch;
@@ -65,8 +65,8 @@ public class HardwareITD {
 
         // Define and initialize motors
         //initializing peripheral motors
-        Claw = hardwareMap.get(Servo.class, "claw");
-        Intake = hardwareMap.get(CRServo.class, "intake");
+        claw = hardwareMap.get(Servo.class, "claw");
+        intake = hardwareMap.get(CRServo.class, "intake");
         intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
