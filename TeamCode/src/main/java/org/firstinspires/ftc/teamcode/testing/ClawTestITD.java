@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-//@Disabled
+@Disabled
 @TeleOp
 public class ClawTestITD extends OpMode {
    HardwareITD robot;
