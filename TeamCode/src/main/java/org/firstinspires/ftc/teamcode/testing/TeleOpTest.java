@@ -107,9 +107,9 @@ public class TeleOpTest extends OpMode {
     public Servo intakeArm = null;
     double servoPosition = 0.84;
 
-    double IntakeArmUp = .84;
+    double IntakeArmUp = .88;
     double IntakeArmHold = .6;
-    double IntakeArmDown = .5;
+    double IntakeArmDown = .55;
 
 
     double powerIn = 1.0;
@@ -261,7 +261,7 @@ public class TeleOpTest extends OpMode {
 
         //////////////////intake & auto grab///////////////////////
 
-        if (gamepad2.right_bumper) {
+        if (gamepad2.right_bumper && sampleColor != "red") {
 
             intakeRunning = true;
             intake.setPower(powerIn);
