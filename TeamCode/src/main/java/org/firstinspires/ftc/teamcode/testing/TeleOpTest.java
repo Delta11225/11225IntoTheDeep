@@ -64,7 +64,7 @@ public class TeleOpTest extends OpMode {
     public DcMotor rearRight = null;
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
-
+    public Servo claw;
 
 
     // The IMU sensor object
@@ -99,18 +99,21 @@ public class TeleOpTest extends OpMode {
     boolean sliderunning = false;
     TouchSensor touch;
     int highBucketHeight = 3600;
-    int lowBucketHeight = 1675;
+    int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
     int lowChamberHeight = 538;
+    int highChamberReleaseHeight = 1250;
 
     //from ServoTestJTH
     public Servo intakeArm = null;
     double servoPosition = 0.84;
 
-    double IntakeArmUp = .88;
+    double IntakeArmUp = .86;
     double IntakeArmHold = .6;
-    double IntakeArmDown = .55;
+    double IntakeArmDown = .52;
 
+    double ClawOpen = 0.4;
+    double ClawClosed = 0.8;
 
     double powerIn = 1.0;
     double powerOut = -1.0;
@@ -133,7 +136,7 @@ public class TeleOpTest extends OpMode {
         // Retrieve and initialize the IMU.
         imu = hardwareMap.get(IMU.class, "imu");
 
-         //To Do:  EDIT these two lines to match YOUR mounting configuration.
+        //To Do:  EDIT these two lines to match YOUR mounting configuration.
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
@@ -177,10 +180,11 @@ public class TeleOpTest extends OpMode {
         touch = hardwareMap.get(TouchSensor.class, "touch");
 
         //////////////////intake arm///////////////////////
-        intakeArm = hardwareMap.get(Servo.class,"intake_arm");
-
+        intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         intakeArm.setPosition(IntakeArmUp);
 
+        //////////////////claw////////////////////////////
+        claw = hardwareMap.get(Servo.class, "claw");
     }
 
     @Override
@@ -190,25 +194,26 @@ public class TeleOpTest extends OpMode {
         imu.resetYaw();
     }
 
-        @Override
-        public void loop() {
+    @Override
+    public void loop() {
 
-            // Retrieve Rotational Angles and Velocities
-            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-            AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+        // Retrieve Rotational Angles and Velocities
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
 
-            telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
-            telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
-            telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
-            telemetry.update();
+        telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
+        telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
+        telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
+        telemetry.update();
 
-            currentAngle = orientation.getYaw(AngleUnit.DEGREES);
-            move();
-            peripheral();
+        currentAngle = orientation.getYaw(AngleUnit.DEGREES);
+        move();
+        peripheral();
 
-        }
-/////////////////////////move sequence//////////////////////////
+    }
+
+    /////////////////////////move sequence//////////////////////////
     public void move() {
 
         double theta = Math.toRadians(currentAngle);
@@ -218,7 +223,7 @@ public class TeleOpTest extends OpMode {
 
         //Orientation set for robot facing driver
         forward = gamepad1.left_stick_y; //left joystick down
-        right = -gamepad1.left_stick_x*1.1; //left joystick left, adjusting for strafe
+        right = -gamepad1.left_stick_x * 1.1; //left joystick left, adjusting for strafe
         clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         temp = (forward * Math.cos(theta) - right * Math.sin(theta));
@@ -227,11 +232,11 @@ public class TeleOpTest extends OpMode {
         forward = temp;
         right = side;
 
-        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise),1);
-        frontLeftV = (forward + right + clockwise)/denominator;
-        rearLeftV = (forward - right + clockwise)/denominator;
-        rearRightV = (forward + right - clockwise)/denominator;
-        frontRightV = (forward - right - clockwise)/denominator;
+        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
+        frontLeftV = (forward + right + clockwise) / denominator;
+        rearLeftV = (forward - right + clockwise) / denominator;
+        rearRightV = (forward + right - clockwise) / denominator;
+        frontRightV = (forward - right - clockwise) / denominator;
 
         // Handle speed control
         frontLeft.setPower(frontLeftV * powerMultiplier);
@@ -243,15 +248,11 @@ public class TeleOpTest extends OpMode {
 
         if (gamepad1.left_bumper) {
             powerMultiplier = .8;//FAST MODE
+        } else if (gamepad1.right_bumper) {
+            powerMultiplier = .3; //SLOW MODE
+        } else {
+            powerMultiplier = .6; //NORMAL MODE
         }
-        else if (gamepad1.right_bumper){
-            powerMultiplier=.3; //SLOW MODE
-            }
-        else {
-            powerMultiplier=.6; //NORMAL MODE
-        }
-
-
 
 
     }
@@ -275,9 +276,7 @@ public class TeleOpTest extends OpMode {
                 gamepad1.rumble(500);
                 intakeRunning = false;
 
-            }
-
-            else if ((sampleColor == "yellow")//check color yellow
+            } else if ((sampleColor == "yellow")//check color yellow
                     && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                     && (intakeRunning == true))//intake is running
             {
@@ -286,21 +285,18 @@ public class TeleOpTest extends OpMode {
                 gamepad1.rumble(100);
                 intakeRunning = false;
             }
-        }
-
-
-        else{
+        } else {
             intakeRunning = false;
             intake.setPower(0);
         }
 
-        if((sampleColor == "red")
+        if ((sampleColor == "red")
                 && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) //distance less than 2 cm
         {
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
         }
-        if(gamepad2.left_bumper){
+        if (gamepad2.left_bumper) {
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
         }
@@ -324,15 +320,14 @@ public class TeleOpTest extends OpMode {
 */
 ///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
 
-                if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
-                    sampleColor = "blue";
-                }
-                if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
-                    sampleColor = "red";
-                }
-                else {
-                    sampleColor = "yellow";
-                }
+        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+            sampleColor = "blue";
+        }
+        if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+            sampleColor = "red";
+        } else {
+            sampleColor = "yellow";
+        }
 
         telemetry.addData("Color vals, r", sensorColor.red());
         telemetry.addData("Color vals, g", sensorColor.green());
@@ -352,44 +347,55 @@ public class TeleOpTest extends OpMode {
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
-        if (gamepad2.a) {
+        if (gamepad2.left_stick_y>0.5 && gamepad2.right_stick_y>0.5) {
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(0.5);
+            linearSlide.setPower(0.8);
         }
         if (touch.isPressed() == true) {
             linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
             linearSlide.setPower(0);
         }
         if (gamepad2.b) {
-            linearSlideTarget = 1875;//high chamber height
+            linearSlideTarget = highChamberHeight;//high chamber height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
 
+        }
+        if (gamepad2.a){
+            linearSlideTarget = highChamberReleaseHeight;//high chamber height
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
         }
         telemetry.addData("encoder", linearSlide.getCurrentPosition());
 
 
 ////////////////////////////////////////intake arm///////////////////////
-        if (gamepad2.dpad_down){
+        if (gamepad2.dpad_down) {
             servoPosition = IntakeArmDown;
-        }
-        else if (gamepad2.dpad_left) {
+        } else if (gamepad2.dpad_left) {
             servoPosition = IntakeArmHold;
-        }
-        else if (gamepad2.dpad_up){
+        } else if (gamepad2.dpad_up) {
             servoPosition = IntakeArmUp;
         }
 
         intakeArm.setPosition(servoPosition);
 
-        telemetry.addData("position",servoPosition);
-        telemetry.addData("intake arm",intakeArm.getPosition());
+        telemetry.addData("position", servoPosition);
+        telemetry.addData("intake arm", intakeArm.getPosition());
+
+////////////////////////////////////////manual claw controls///////////////////////
+
+        if (gamepad2.left_trigger > 0.5) {
+            claw.setPosition(ClawOpen);
+        }
+
+        if (gamepad2.right_trigger > 0.5) {
+            claw.setPosition(ClawClosed);
+        }
+
+
     }
-
-
-
-
-
- }
+    /////end of peripheral move////////
+}
 
