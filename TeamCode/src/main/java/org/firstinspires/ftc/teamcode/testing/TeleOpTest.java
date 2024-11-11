@@ -259,9 +259,8 @@ public class TeleOpTest extends OpMode {
 
     public void peripheral() {
 
-
+//TODO add automations/safeties from benchmark
         //////////////////intake & auto grab///////////////////////
-
         if (gamepad2.right_bumper && sampleColor != "red") {
 
             intakeRunning = true;
@@ -314,9 +313,6 @@ public class TeleOpTest extends OpMode {
                     intakeRunning = false;
                     intake.setPower(0);
                 }
-
-
-
 */
 ///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
 
@@ -360,7 +356,6 @@ public class TeleOpTest extends OpMode {
             linearSlideTarget = highChamberHeight;//high chamber height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
-
         }
         if (gamepad2.a){
             linearSlideTarget = highChamberReleaseHeight;//high chamber height
@@ -394,8 +389,11 @@ public class TeleOpTest extends OpMode {
             claw.setPosition(ClawClosed);
         }
 
-
     }
+    ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
+    //make sure to raise linear slide above wall after grabbing
+
+
     /////end of peripheral move////////
 }
 
