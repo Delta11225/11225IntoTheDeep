@@ -131,6 +131,12 @@ public class TeleOpTest extends OpMode {
 
     boolean armIsScoring = false;
 
+    //from AscentArmAutoTest
+    private DcMotor ascentArm;
+    int armHang = 234;
+    int armHook = 8515;
+    int store = 0;
+
     @Override
     public void init() {
         // Retrieve and initialize the IMU.
@@ -185,6 +191,15 @@ public class TeleOpTest extends OpMode {
 
         //////////////////claw////////////////////////////
         claw = hardwareMap.get(Servo.class, "claw");
+
+        ///////////////Ascent Arm//////////////////////
+        ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
+        ascentArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ascentArm.setZeroPowerBehavior(BRAKE);
+        //Turn on Run to Position and set initial target at store = 0
+        ascentArm.setTargetPosition(store);
+        ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     @Override
@@ -254,7 +269,27 @@ public class TeleOpTest extends OpMode {
             powerMultiplier = .6; //NORMAL MODE
         }
 
+        //Ascent Arm Auto
+        if (gamepad1.dpad_down & gamepad1.a){
+            ascentArm.setTargetPosition(store);
+            ascentArm.setPower(0.5);
 
+
+        }
+        if (gamepad1.dpad_left & gamepad1.b) {
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHook);
+
+        }
+
+        if (gamepad1.dpad_up & gamepad1.y){
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHang);
+
+        }
+
+        telemetry.addData("encoder", ascentArm.getCurrentPosition());
+        telemetry.update();
     }
 
     public void peripheral() {
