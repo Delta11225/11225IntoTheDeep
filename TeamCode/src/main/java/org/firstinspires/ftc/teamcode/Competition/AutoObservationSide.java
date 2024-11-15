@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 @Autonomous
-public class AutoNetSide extends LinearOpMode {
+public class AutoObservationSide extends LinearOpMode {
 
     HardwareITD robot;
 
@@ -51,86 +51,86 @@ public class AutoNetSide extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         //Set starting Pose for robot (coordinate and heading)
-        Pose2d startPose = new Pose2d(18, 66.5, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(-14.5, 66.5, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
 
         /////Trajectory Sequence for deploying preloaded specimen
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
-            .addDisplacementMarker(()->{
+                //closing claw and lifting arm up
+                .addDisplacementMarker(()->{
                     robot.claw.setPosition(ClawClosed);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-            .lineToConstantHeading(new Vector2d(4, 29))
-            .addSpatialMarker(new Vector2d(16, 62), () -> {
-                robot.linearSlide.setTargetPosition(highChamberHeight);
-                robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.linearSlide.setPower(1);
+                //approach submersible
+                .lineToConstantHeading(new Vector2d(0, 30))
+                //start lifting slide when robot is at (-12,64) which is close to start pose
+                .addSpatialMarker(new Vector2d(-12, 64), () -> {
+                    robot.linearSlide.setTargetPosition(highChamberHeight);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
                 })
 
-            .addDisplacementMarker(()->{
+                .addDisplacementMarker(()->{
                     robot.claw.setPosition(ClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
 
-            .strafeLeft(10)//coordinate (4, 39)
-            .build();
+                .strafeLeft(10)
+                .build();
 
+
+                // Grabbing first sample from the observation zone
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
-            .lineToLinearHeading(new Pose2d(30, 35, Math.toRadians(340)))
-                .addSpatialMarker(new Vector2d(6, 37),() ->{
-                    robot.intakeArm.setPosition(IntakeArmDown);
-                    robot.intake.setPower(powerIn);
-                })
-
-            .forward(4)
-            .waitSeconds(0.4)
-            .back(4)
-            .waitSeconds(0.5)
-                .addDisplacementMarker(()->{
-                    robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(0);
-                })
-                // Approaching high basket
-                .lineToLinearHeading(new Pose2d(52,59, Math.toRadians(45)))
-                // raising slide to high bucket while approaching basket
-                .addSpatialMarker(new Vector2d(31, 36), () -> {
-                    robot.claw.setPosition(ClawClosed);
-                    robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.linearSlide.setTargetPosition(highBucketHeight);
-                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.linearSlide.setPower(1);
-                })
-                .forward(4)
-                .waitSeconds(1)
-                .forward(0.001)
-                .addDisplacementMarker(()->{
-                    robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(powerOut);
-                })
-                .forward(0.001)
-                .waitSeconds(1)
-                .back(3)
-                .addDisplacementMarker(()->{
-                    robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(0);
-                })
-
-            .build();
+                // robot approaches preloaded specimen in observation zone
+                .lineToLinearHeading(new Pose2d(-43, 59.5, Math.toRadians(180)))
+                .strafeRight(6)
+                .build();
 
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
-            .lineToLinearHeading(new Pose2d(36,55, Math.toRadians(90)))
-            .build();
+                //goes to submersible holding second specimen
+                .lineToLinearHeading(new Pose2d(-3.5, 36, Math.toRadians(0)))
+                //lifts linear slide while moving
+                .addSpatialMarker(new Vector2d(-42, 59), () -> {
+                    robot.linearSlide.setTargetPosition(2050);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
+                //moves closer to submersible
+                .strafeRight(5.25)
+                //clips second specimen
+                .addDisplacementMarker(() -> {
+                    robot.linearSlide.setTargetPosition(900);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
+                .build();
+
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
+                //PARK IN OBSERVATION ZONE FACING DRIVERS
+                .strafeLeft(5)
+                .lineToLinearHeading(new Pose2d(-60, 60, Math.toRadians(90)))
+                .build();
+
+
+
+
+
 
 
         waitForStart();
 
-      drive.followTrajectorySequence(traj1);
-      deploySpecimen();
-      drive.followTrajectorySequence(traj2);
-      returnSlideToGround();
-      drive.followTrajectorySequence(traj3);
+        drive.followTrajectorySequence(traj1);
+        deploySpecimen();
+        drive.followTrajectorySequence(traj2);
+        retrieveObservationSpecimen();
+        drive.followTrajectorySequence(traj3);
+        deploySpecimen();
+        drive.followTrajectorySequence(traj4);
+
+
+
 
     }
 
@@ -152,22 +152,22 @@ public class AutoNetSide extends LinearOpMode {
             telemetry.update();
         }
     }
-    public void returnSlideToGround() {
 
-
-        //return slide to ground
-        robot.linearSlide.setTargetPosition(0);
+    public void retrieveObservationSpecimen(){
+        //grab specimen hanging on wall
+        robot.claw.setPosition(ClawClosed);
+        robot.intakeArm.setPosition(IntakeArmUp);
+        sleep(500);
+        //lift linear slide up to clear wall with specimen
+        robot.linearSlide.setTargetPosition(700);
         robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.linearSlide.setPower(1);
-        while (robot.linearSlide.isBusy() || robot.touch.isPressed() == false) {
-            if (robot.touch.isPressed()) {
-                robot.linearSlide.setTargetPosition(robot.linearSlide.getCurrentPosition());
-            }
+        while (robot.linearSlide.isBusy()) {
             telemetry.addData("slide Power", robot.linearSlide.getPower());
             telemetry.addData("slide encoder", robot.linearSlide.getCurrentPosition());
             telemetry.addData("slide target", robot.linearSlide.getTargetPosition());
-            telemetry.addData("touch state", robot.touch.isPressed());
             telemetry.update();
         }
+        sleep(1000);
     }
 }
