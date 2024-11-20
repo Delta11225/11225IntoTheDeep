@@ -85,14 +85,13 @@ public class TeleOpTest extends OpMode {
     double powerMultiplier = 0.7;
     double deadZone = Math.abs(0.2);
 
-    //from IntakeAutoGrabChallengeBlueLT
+
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
     public CRServo intake = null;
     boolean intakeRunning = true;
     String sampleColor = "none";
-
-    //from LinearSlideAutoTestChallengeLT
+    boolean intakeUp = true;
     private DcMotor linearSlide;
     private int linearSlideTarget = 0;
     private int linearSlideZero = 0;
@@ -132,7 +131,7 @@ public class TeleOpTest extends OpMode {
     boolean clampIsClosed = false;
     boolean slideDown = true;
     boolean slowMode = false;
-
+    boolean slideGoingDown = false;
     boolean armIsScoring = false;
 
     //from AscentArmAutoTest
@@ -276,17 +275,15 @@ public class TeleOpTest extends OpMode {
             powerMultiplier = .6; //NORMAL MODE
         }
 
-        //Ascent Arm Auto
+/////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
         if (gamepad1.dpad_down & gamepad1.a) {
             ascentArm.setTargetPosition(store);
             ascentArm.setPower(0.5);
-
-
         }
+
         if (gamepad1.dpad_left & gamepad1.b) {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHook);
-
         }
 
         if (gamepad1.dpad_up & gamepad1.y) {
@@ -302,7 +299,7 @@ public class TeleOpTest extends OpMode {
     public void peripheral() {
 
 //TODO add automations/safeties from benchmark
-        //////////////////intake & auto grab///////////////////////
+        ////////////////// auto intake ///////////////////////
         if (gamepad2.right_bumper && sampleColor != "red") {
 
             intakeRunning = true;
@@ -312,19 +309,19 @@ public class TeleOpTest extends OpMode {
                     && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                     && (intakeRunning == true))//claw is open
             {
-                sampleColor = "blue";
                 intake.setPower(0);//Taking in sample
                 gamepad1.rumble(500);
                 intakeRunning = false;
+                intakeArm.setPosition(IntakeArmHold);
 
             } else if ((sampleColor == "yellow")//check color yellow
                     && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
                     && (intakeRunning == true))//intake is running
             {
-                sampleColor = "yellow";
                 intake.setPower(0);//intake is running
                 gamepad1.rumble(100);
                 intakeRunning = false;
+                intakeArm.setPosition(IntakeArmHold);
             }
         } else {
             intakeRunning = false;
@@ -332,7 +329,7 @@ public class TeleOpTest extends OpMode {
         }
 
         if ((sampleColor == "red")
-                && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) //distance less than 2 cm
+                && (sensorDistance.getDistance(DistanceUnit.CM) <= 5)) //distance less than 2 cm
         {
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
@@ -375,31 +372,48 @@ public class TeleOpTest extends OpMode {
         telemetry.addData("intake power", intake.getPower());
 
 //////////////////////////////////////////linear slide///////////////////////
-        if (gamepad2.y) {
+
+
+        if (gamepad2.y && intakeUp == true) {
+            slideDown = false;
             linearSlideTarget = highBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
-        if (gamepad2.x) {
+        if (gamepad2.x && intakeUp == true) {
+            slideDown = false;
             linearSlideTarget = lowBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
+        // bring slide to ground
         if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
+            slideGoingDown = true;
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.8);
         }
-        if (touch.isPressed() == true) {
+
+        if (touch.isPressed() == true && slideGoingDown == true) {
+            slideDown=true;
+            slideGoingDown = false;
             linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
             linearSlide.setPower(0);
+            ascentArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            linearSlide.setTargetPosition(0);
+            ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
         }
-        if (gamepad2.b) {
+        if (gamepad2.b && intakeUp == true) {
+            slideDown = false;
             linearSlideTarget = highChamberHeight;//high chamber height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
-        if (gamepad2.a) {
+        if (gamepad2.a && intakeUp == true) {
+            slideDown = false;
             linearSlideTarget = highChamberReleaseHeight;//high chamber height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
@@ -408,12 +422,21 @@ public class TeleOpTest extends OpMode {
 
 
 ////////////////////////////////////////intake arm///////////////////////
-        if (gamepad2.dpad_down) {
+
+        // brings arm to down/collect position
+        if (gamepad2.dpad_down && slideDown == true) {
             servoPosition = IntakeArmDown;
-        } else if (gamepad2.dpad_left) {
+            intakeUp = false;
+
+        // brings arm to hold position
+        } else if (gamepad2.dpad_left && slideDown == true) {
             servoPosition = IntakeArmHold;
+            intakeUp = false;
+
+        // brings arm to score/up position
         } else if (gamepad2.dpad_up) {
             servoPosition = IntakeArmUp;
+            intakeUp = true;
         }
 
         intakeArm.setPosition(servoPosition);
@@ -434,34 +457,6 @@ public class TeleOpTest extends OpMode {
 
         ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-
-            if ((sensorColor.red() > sensorColor.green()) && (sensorColor.green() > sensorColor.blue())) {
-                telemetry.addData("Color", "red");
-                claw.setPosition(ClawOpen);//claw open
-            } else if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
-                telemetry.addData("Color", "blue");
-                claw.setPosition(ClawClosed);//Claw Closed
-                gamepad1.rumble(100);
-            } else if ((sensorColor.green() > sensorColor.blue()) && (sensorColor.blue() > sensorColor.red())) {
-                telemetry.addLine("OBJECT DETECTED-Wrong color");
-                claw.setPosition(ClawOpen);//Claw Open
-            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())) {
-                telemetry.addData("Color", "yellow");
-                claw.setPosition(ClawClosed);//claw closed
-                gamepad1.rumble(100);
-            }
-
-        } else {
-            claw.setPosition(ClawOpen);
-        }
-
-
-        telemetry.addData("Color vals, r", sensorColor.red());
-        telemetry.addData("Color vals, g", sensorColor.green());
-        telemetry.addData("Color vals, b", sensorColor.blue());
-        telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
-
 
     }
 }
