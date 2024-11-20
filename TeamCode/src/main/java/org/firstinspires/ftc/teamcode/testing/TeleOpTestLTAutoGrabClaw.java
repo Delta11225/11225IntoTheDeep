@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode.testing;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -16,46 +15,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.utility.Constants;
-import org.firstinspires.ftc.teamcode.utility.ControlConfig;
-import org.firstinspires.ftc.teamcode.utility.HardwareCC;
-import org.firstinspires.ftc.teamcode.utility.HardwareITD;
-
-import java.util.Locale;
-
-import static org.firstinspires.ftc.teamcode.utility.Constants.armCollectPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armHoldPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armScoringPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armTrussHeight;
-import static org.firstinspires.ftc.teamcode.utility.Constants.clampClosedPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.clampOpenPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.droneHold;
-import static org.firstinspires.ftc.teamcode.utility.Constants.droneLaunch;
-import static org.firstinspires.ftc.teamcode.utility.Constants.linearSlideAutomatedDeployHigh;
-import static org.firstinspires.ftc.teamcode.utility.Constants.linearSlideAutomatedDeployLow;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorHookHeightLeft;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorHookHeightRight;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightLeft;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightRight;
-
-
-
-import java.util.Locale;
 
 
 @TeleOp
-public class TeleOpTest extends OpMode {
+public class TeleOpTestLTAutoGrabClaw extends OpMode {
 
 
     //HardwareITD robot;
@@ -195,9 +162,9 @@ public class TeleOpTest extends OpMode {
 
         //////////////////claw////////////////////////////
         claw = hardwareMap.get(Servo.class, "claw");
-        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
-
+        sensorColor = hardwareMap.get(ColorSensor.class, "sensorColor");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
+        claw.setPosition(ClawOpen);
 
         ///////////////Ascent Arm//////////////////////
         ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
@@ -434,6 +401,7 @@ public class TeleOpTest extends OpMode {
 
         ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
+
         if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
 
             if ((sensorColor.red() > sensorColor.green()) && (sensorColor.green() > sensorColor.blue())) {
@@ -465,8 +433,6 @@ public class TeleOpTest extends OpMode {
 
     }
 }
-
-
 
     /////end of peripheral move////////
 
