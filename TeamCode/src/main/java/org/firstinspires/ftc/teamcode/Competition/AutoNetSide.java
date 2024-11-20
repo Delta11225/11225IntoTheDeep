@@ -108,6 +108,7 @@ public class AutoNetSide extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.intake.setPower(powerOut);
                 })
+
                 .forward(0.001)
                 .waitSeconds(1)
                 .back(3)
@@ -118,9 +119,64 @@ public class AutoNetSide extends LinearOpMode {
 
             .build();
 
-
+        //grabs second sample
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
-            .lineToLinearHeading(new Pose2d(36,55, Math.toRadians(90)))
+                //go to second sample
+            .lineToLinearHeading(new Pose2d(35,27, Math.toRadians(0)))
+                .addSpatialMarker(new Vector2d(50, 55),() ->{
+                    robot.intakeArm.setPosition(IntakeArmHold);
+                    robot.intake.setPower(powerIn);
+                })
+                //grab sample with intake
+            .forward(2)
+            .waitSeconds(0.1)
+            .addDisplacementMarker(()->{
+                robot.intakeArm.setPosition(IntakeArmDown);
+                robot.intake.setPower(powerIn);
+                })
+            .forward(4)
+            .waitSeconds(0.4)
+            .back(4)
+            .waitSeconds(0.9)
+            .addDisplacementMarker(()->{
+                robot.intakeArm.setPosition(IntakeArmUp);
+                robot.intake.setPower(0);
+                })
+
+                .build();
+
+        //put second sample in high basket
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
+            .lineToLinearHeading(new Pose2d(51,58, Math.toRadians(45)))
+            // raising slide to high bucket while approaching basket
+            .addSpatialMarker(new Vector2d(39, 31), () -> {
+                robot.claw.setPosition(ClawClosed);
+                robot.intakeArm.setPosition(IntakeArmUp);
+                robot.linearSlide.setTargetPosition(highBucketHeight);
+                robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.linearSlide.setPower(1);
+                })
+            .forward(4)
+            .waitSeconds(1)
+            .forward(2)
+            .addDisplacementMarker(()->{
+                robot.intakeArm.setPosition(IntakeArmUp);
+                robot.intake.setPower(powerOut);
+                })
+
+            .forward(0.001)
+            .waitSeconds(1)
+            .back(3)
+            .addDisplacementMarker(()->{
+                robot.intakeArm.setPosition(IntakeArmUp);
+                robot.intake.setPower(0);
+                })
+
+            .build();
+
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(traj4.end())
+                .lineToLinearHeading(new Pose2d(48,48, Math.toRadians(90)))
+
             .build();
 
 
@@ -131,6 +187,9 @@ public class AutoNetSide extends LinearOpMode {
       drive.followTrajectorySequence(traj2);
       returnSlideToGround();
       drive.followTrajectorySequence(traj3);
+      drive.followTrajectorySequence(traj4);
+      returnSlideToGround();
+      drive.followTrajectorySequence(traj5);
 
     }
 
