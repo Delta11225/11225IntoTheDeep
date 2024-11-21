@@ -300,6 +300,7 @@ public class TeleOpTest extends OpMode {
 
 //TODO add automations/safeties from benchmark
         ////////////////// auto intake ///////////////////////
+        /*
         if (gamepad2.right_bumper && sampleColor != "red") {
 
             intakeRunning = true;
@@ -338,9 +339,9 @@ public class TeleOpTest extends OpMode {
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
         }
-
+*/
 //////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
-      /*          if (gamepad2.left_trigger > .5) {
+               if (gamepad2.left_trigger > .5) {
                     intakeRunning = true;
                     intake.setPower(powerIn);
                 }
@@ -352,7 +353,7 @@ public class TeleOpTest extends OpMode {
                     intakeRunning = false;
                     intake.setPower(0);
                 }
-*/
+
 ///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
 
         if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
