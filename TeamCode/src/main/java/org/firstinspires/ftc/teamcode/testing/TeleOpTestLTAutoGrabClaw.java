@@ -420,8 +420,8 @@ public class TeleOpTestLTAutoGrabClaw extends OpMode {
                 gamepad1.rumble(100);
             }
 
-        } else {
-            claw.setPosition(ClawOpen);
+        } else //if (sensorDistance.getDistance(DistanceUnit.CM) >= 2 != gamepad2.right_trigger > 0.5){
+        {claw.setPosition(ClawOpen);
         }
 
 
