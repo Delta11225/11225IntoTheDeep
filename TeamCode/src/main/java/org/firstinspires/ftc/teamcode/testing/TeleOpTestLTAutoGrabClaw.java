@@ -81,10 +81,6 @@ public class TeleOpTestLTAutoGrabClaw extends OpMode {
 
     double ClawOpen = 0.4;
     double ClawClosed = 0.8;
-    double leftClawClosed = 0.8;
-    double leftClawOpened = 0.4;
-    double rightClawClosed = 0.1;
-    double rightClawOpened = 0.4;
 
     double powerIn = 1.0;
     double powerOut = -1.0;
@@ -403,36 +399,16 @@ public class TeleOpTestLTAutoGrabClaw extends OpMode {
         //make sure to raise linear slide above wall after grabbing
 
         if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-
-            if ((sensorColor.red() > sensorColor.green()) && (sensorColor.green() > sensorColor.blue())) {
-                telemetry.addData("Color", "red");
-                claw.setPosition(ClawOpen);//claw open
-            } else if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
-                telemetry.addData("Color", "blue");
-                claw.setPosition(ClawClosed);//Claw Closed
-                gamepad1.rumble(100);
-            } else if ((sensorColor.green() > sensorColor.blue()) && (sensorColor.blue() > sensorColor.red())) {
-                telemetry.addLine("OBJECT DETECTED-Wrong color");
-                claw.setPosition(ClawOpen);//Claw Open
-            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > sensorColor.red())) {
-                telemetry.addData("Color", "yellow");
-                claw.setPosition(ClawClosed);//claw closed
-                gamepad1.rumble(100);
-            }
-
-        } else //if (sensorDistance.getDistance(DistanceUnit.CM) >= 2 != gamepad2.right_trigger > 0.5){
-        {claw.setPosition(ClawOpen);
+            gamepad1.rumble(100);
+            claw.setPosition(ClawClosed);//Claw Closed
         }
+            telemetry.addData("Color vals, r", sensorColor.red());
+            telemetry.addData("Color vals, g", sensorColor.green());
+            telemetry.addData("Color vals, b", sensorColor.blue());
+            telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
 
-
-        telemetry.addData("Color vals, r", sensorColor.red());
-        telemetry.addData("Color vals, g", sensorColor.green());
-        telemetry.addData("Color vals, b", sensorColor.blue());
-        telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
-
-
+        }
     }
-}
 
     /////end of peripheral move////////
 

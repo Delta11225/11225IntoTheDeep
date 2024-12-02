@@ -38,7 +38,9 @@ public class TeleOpLM1 extends OpMode {
    IMU imu;
 
 
-   private ElapsedTime runtime = new ElapsedTime();
+   private ElapsedTime matchtime = new ElapsedTime();
+
+   private ElapsedTime clawLastClosed = new ElapsedTime();
 
    double frontLeftV;
    double rearLeftV;
@@ -58,6 +60,8 @@ public class TeleOpLM1 extends OpMode {
 
    ColorSensor sensorColor;
    DistanceSensor sensorDistance;
+   ColorSensor sensorColorClaw;
+   DistanceSensor sensorDistanceClaw;
    String sampleColor = "none";
    TouchSensor touch;
 
@@ -102,12 +106,11 @@ public class TeleOpLM1 extends OpMode {
    double IMUAngle;
    double currentAngle;
 
-   boolean clampIsClosed = false;
    boolean slideDown = true;
    boolean slowMode = false;
    boolean slideGoingDown = false;
    boolean armIsScoring = false;
-   boolean clawIsOpen;
+   boolean clawIsOpen = true;
 
    //from AscentArmAutoTest
    private DcMotor ascentArm;
@@ -151,8 +154,9 @@ public class TeleOpLM1 extends OpMode {
 
       //////////////////intake & auto grab///////////////////////
       intake = hardwareMap.get(CRServo.class, "intake");
-      sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
-      sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
+      sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//intake color sensor
+      sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //intake distance sensor
+
 
       //////////////////linear slide///////////////////////
       linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
@@ -169,8 +173,9 @@ public class TeleOpLM1 extends OpMode {
 
       //////////////////claw////////////////////////////
       claw = hardwareMap.get(Servo.class, "claw");
-      sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
-      sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
+      sensorColorClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
+      sensorDistanceClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
+      claw.setPosition(ClawOpen);
 
 
       ///////////////Ascent Arm//////////////////////
@@ -186,7 +191,8 @@ public class TeleOpLM1 extends OpMode {
    @Override
    public void start() {
       currentAngle = 0;
-      runtime.reset();
+      matchtime.reset();
+      clawLastClosed.reset();
       imu.resetYaw();
    }
 
@@ -340,12 +346,7 @@ public class TeleOpLM1 extends OpMode {
          sampleColor = "yellow";
       }
 
-      telemetry.addData("Color vals, r", sensorColor.red());
-      telemetry.addData("Color vals, g", sensorColor.green());
-      telemetry.addData("Color vals, b", sensorColor.blue());
-      telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
-      telemetry.addData("Color Detected", sampleColor);
-      telemetry.addData("intake power", intake.getPower());
+
 
 //////////////////////////////////////////linear slide///////////////////////
 
@@ -394,7 +395,7 @@ public class TeleOpLM1 extends OpMode {
          linearSlide.setTargetPosition(linearSlideTarget);
          linearSlide.setPower(1);
       }
-      telemetry.addData("encoder", linearSlide.getCurrentPosition());
+
 
 
 ////////////////////////////////////////intake arm///////////////////////
@@ -417,8 +418,7 @@ public class TeleOpLM1 extends OpMode {
 
       intakeArm.setPosition(servoPosition);
 
-      telemetry.addData("position", servoPosition);
-      telemetry.addData("intake arm", intakeArm.getPosition());
+
 
 ////////////////////////////////////////manual claw controls///////////////////////
 
@@ -435,7 +435,14 @@ public class TeleOpLM1 extends OpMode {
 
       ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
       //make sure to raise linear slide above wall after grabbing
-
+      if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 5 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+         gamepad2.rumble(500);
+         claw.setPosition(ClawClosed);//Claw Closed
+         clawLastClosed.reset();
+         clawIsOpen=false;
+      }
+      telemetry.addData("claw open", clawIsOpen);
+      telemetry.addData("Distance(claw)", sensorDistanceClaw.getDistance(DistanceUnit.CM));
    }
 }
 
