@@ -10,7 +10,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleOpTestLM1")
+
 public class AutoNetSide extends LinearOpMode {
 
     HardwareITD robot;
@@ -75,7 +76,7 @@ public class AutoNetSide extends LinearOpMode {
 
             .strafeLeft(10)//coordinate (4, 39)
             .build();
-
+        //picks up first yellow sample with intake arm
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
             .lineToLinearHeading(new Pose2d(30, 35, Math.toRadians(340)))
                 .addSpatialMarker(new Vector2d(6, 37),() ->{
@@ -91,9 +92,9 @@ public class AutoNetSide extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.intake.setPower(0);
                 })
-                // Approaching high basket
+                // Approaches high basket
                 .lineToLinearHeading(new Pose2d(52,59, Math.toRadians(45)))
-                // raising slide to high bucket while approaching basket
+                // raises slide to high bucket while approaching basket
                 .addSpatialMarker(new Vector2d(31, 36), () -> {
                     robot.claw.setPosition(ClawClosed);
                     robot.intakeArm.setPosition(IntakeArmUp);
@@ -102,9 +103,10 @@ public class AutoNetSide extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 .forward(4)
-                .waitSeconds(1)
+                .waitSeconds(0.5)
                 .forward(0.001)
                 .addDisplacementMarker(()->{
+                    //drops off first sample in basket
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.intake.setPower(powerOut);
                 })
@@ -137,7 +139,7 @@ public class AutoNetSide extends LinearOpMode {
             .forward(4)
             .waitSeconds(0.4)
             .back(4)
-            .waitSeconds(0.9)
+            .waitSeconds(0.6)
             .addDisplacementMarker(()->{
                 robot.intakeArm.setPosition(IntakeArmUp);
                 robot.intake.setPower(0);
@@ -160,6 +162,7 @@ public class AutoNetSide extends LinearOpMode {
             .waitSeconds(1)
             .forward(2)
             .addDisplacementMarker(()->{
+                //drops second sample in basket
                 robot.intakeArm.setPosition(IntakeArmUp);
                 robot.intake.setPower(powerOut);
                 })
@@ -174,6 +177,7 @@ public class AutoNetSide extends LinearOpMode {
 
             .build();
 
+        //orients the robot properly (towards drivers) for TeleOp driver oriented controls
         TrajectorySequence traj5 = drive.trajectorySequenceBuilder(traj4.end())
                 .lineToLinearHeading(new Pose2d(48,48, Math.toRadians(90)))
 
@@ -193,6 +197,7 @@ public class AutoNetSide extends LinearOpMode {
 
     }
 
+    //class made specifically
     public void deploySpecimen() {
         //open claw
         robot.claw.setPosition(ClawOpen);
