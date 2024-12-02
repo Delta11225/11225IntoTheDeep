@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleOpTestLM1")
 public class AutoObservationSide extends LinearOpMode {
 
     HardwareITD robot;
@@ -110,7 +110,7 @@ public class AutoObservationSide extends LinearOpMode {
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 //PARK IN OBSERVATION ZONE FACING DRIVERS
                 .strafeLeft(5)
-                .lineToLinearHeading(new Pose2d(-60, 60, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(-60, 57, Math.toRadians(90)))
                 .build();
 
 
