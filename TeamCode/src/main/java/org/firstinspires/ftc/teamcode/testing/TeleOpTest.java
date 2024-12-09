@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.testing;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -53,7 +54,7 @@ import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeight
 
 import java.util.Locale;
 
-
+@Disabled
 @TeleOp
 public class TeleOpTest extends OpMode {
 

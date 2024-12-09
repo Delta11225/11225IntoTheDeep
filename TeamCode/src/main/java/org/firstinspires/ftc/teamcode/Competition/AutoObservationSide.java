@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleOpTestLM1")
+@Autonomous(preselectTeleOp = "TeleOpLM1")
 public class AutoObservationSide extends LinearOpMode {
 
     HardwareITD robot;
@@ -63,7 +63,7 @@ public class AutoObservationSide extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
                 //approach submersible
-                .lineToConstantHeading(new Vector2d(0, 30))
+                .lineToConstantHeading(new Vector2d(0, 28))
                 //start lifting slide when robot is at (-12,64) which is close to start pose
                 .addSpatialMarker(new Vector2d(-12, 64), () -> {
                     robot.linearSlide.setTargetPosition(highChamberHeight);
@@ -83,7 +83,7 @@ public class AutoObservationSide extends LinearOpMode {
                 // Grabbing first sample from the observation zone
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 // robot approaches preloaded specimen in observation zone
-                .lineToLinearHeading(new Pose2d(-43, 59.5, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-41, 61, Math.toRadians(180)))
                 .strafeRight(6)
                 .build();
 
@@ -98,7 +98,7 @@ public class AutoObservationSide extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 //moves closer to submersible
-                .strafeRight(5.25)
+                .strafeRight(5.75)
                 //clips second specimen
                 .addDisplacementMarker(() -> {
                     robot.linearSlide.setTargetPosition(900);
@@ -110,7 +110,7 @@ public class AutoObservationSide extends LinearOpMode {
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 //PARK IN OBSERVATION ZONE FACING DRIVERS
                 .strafeLeft(5)
-                .lineToLinearHeading(new Pose2d(-60, 57, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(-60, 59, Math.toRadians(90)))
                 .build();
 
 

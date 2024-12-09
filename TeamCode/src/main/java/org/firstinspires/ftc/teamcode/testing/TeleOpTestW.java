@@ -43,7 +43,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-
+@Disabled
 @TeleOp
 
 public class TeleOpTestW extends LinearOpMode {
