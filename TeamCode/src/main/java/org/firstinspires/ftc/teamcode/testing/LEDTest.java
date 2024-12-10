@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-@Disabled
+//@Disabled
 @TeleOp
 public class LEDTest extends OpMode {
 
@@ -20,8 +20,8 @@ public class LEDTest extends OpMode {
     public void init() {
 //LED sequence
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorv3"); //claw distance?
-        sensorColor = hardwareMap.get(ColorSensor.class, "colorv3");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //claw distance?
+        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
     }
 
