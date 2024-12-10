@@ -84,7 +84,7 @@ public class TeleOpLM1 extends OpMode {
    //from ServoTestJTH
    public Servo intakeArm = null;
 
-   double servoPosition = 0.84;
+
 
    double IntakeArmUp = .88;
    double IntakeArmHold = .6;
@@ -92,10 +92,7 @@ public class TeleOpLM1 extends OpMode {
 
    double ClawOpen = 0.4;
    double ClawClosed = 0.8;
-   double leftClawClosed = 0.8;
-   double leftClawOpened = 0.4;
-   double rightClawClosed = 0.1;
-   double rightClawOpened = 0.4;
+
 
    double powerIn = 1.0;
    double powerOut = -1.0;
@@ -110,7 +107,6 @@ public class TeleOpLM1 extends OpMode {
    boolean slideDown = true;
    boolean slowMode = false;
    boolean slideGoingDown = false;
-   boolean armIsScoring = false;
    boolean clawIsOpen = true;
 
    //from AscentArmAutoTest

@@ -23,31 +23,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
-import org.firstinspires.ftc.teamcode.utility.Constants;
 import org.firstinspires.ftc.teamcode.utility.ControlConfig;
-import org.firstinspires.ftc.teamcode.utility.HardwareCC;
-import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 import java.util.Locale;
 
-import static org.firstinspires.ftc.teamcode.utility.Constants.armCollectPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armHoldPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armScoringPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.armTrussHeight;
-import static org.firstinspires.ftc.teamcode.utility.Constants.clampClosedPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.clampOpenPosition;
-import static org.firstinspires.ftc.teamcode.utility.Constants.droneHold;
-import static org.firstinspires.ftc.teamcode.utility.Constants.droneLaunch;
-import static org.firstinspires.ftc.teamcode.utility.Constants.linearSlideAutomatedDeployHigh;
-import static org.firstinspires.ftc.teamcode.utility.Constants.linearSlideAutomatedDeployLow;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorHookHeightLeft;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorHookHeightRight;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightLeft;
-import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightRight;
-
 @TeleOp
 //@Disabled
-public class IMUTeleopTest extends LinearOpMode {
+public class TeleopLM2 extends LinearOpMode {
 
     //HardwareITD robot;
 
@@ -61,10 +43,7 @@ public class IMUTeleopTest extends LinearOpMode {
     Orientation angles;
     Acceleration gravity;
 
-    private ElapsedTime runtime = new ElapsedTime();
-    private final ElapsedTime lastSlideDown = new ElapsedTime();
-    private final ElapsedTime lastGrab = new ElapsedTime();
-
+    private ElapsedTime matchtime = new ElapsedTime();
 
     private ElapsedTime clawLastClosed = new ElapsedTime();
 
@@ -105,22 +84,20 @@ public class IMUTeleopTest extends LinearOpMode {
     int highChamberHeight = 1875;
     int lowChamberHeight = 538;
     int highChamberReleaseHeight = 1250;
+    int autoGrabLSHeight = 500;
 
     //from ServoTestJTH
     public Servo intakeArm = null;
 
-    double servoPosition = 0.84;
 
-    double IntakeArmUp = .86;
+
+    double IntakeArmUp = .88;
     double IntakeArmHold = .6;
-    double IntakeArmDown = .52;
+    double IntakeArmDown = .5;
 
     double ClawOpen = 0.4;
     double ClawClosed = 0.8;
-    double leftClawClosed = 0.8;
-    double leftClawOpened = 0.4;
-    double rightClawClosed = 0.1;
-    double rightClawOpened = 0.4;
+
 
     double powerIn = 1.0;
     double powerOut = -1.0;
@@ -135,7 +112,6 @@ public class IMUTeleopTest extends LinearOpMode {
     boolean slideDown = true;
     boolean slowMode = false;
     boolean slideGoingDown = false;
-    boolean armIsScoring = false;
     boolean clawIsOpen = true;
 
     //from AscentArmAutoTest
@@ -143,7 +119,6 @@ public class IMUTeleopTest extends LinearOpMode {
     int armHang = 234;
     int armHook = 8515;
     int store = 0;
-
 
     @Override
     public void runOpMode() {
@@ -221,9 +196,11 @@ public class IMUTeleopTest extends LinearOpMode {
         // End init phase
         waitForStart();
 
+        matchtime.reset();
+        clawLastClosed.reset();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
         currentAngle = 0;
-        runtime.reset();
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -284,18 +261,20 @@ public class IMUTeleopTest extends LinearOpMode {
         telemetry.addData("side: ", side);
         telemetry.addData("clockwise: ", clockwise);
 
-        frontLeftV = forward + right + clockwise;
-        rearLeftV = forward - right + clockwise;
-        rearRightV = forward + right - clockwise;
-        frontRightV = forward - right - clockwise;
+
+        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
+
+        frontLeftV = (forward + right + clockwise) / denominator;
+        rearLeftV = (forward - right + clockwise) / denominator;
+        rearRightV = (forward + right - clockwise) / denominator;
+        frontRightV = (forward - right - clockwise) / denominator;
 
         telemetry.addData("front left: ", frontLeft);
         telemetry.addData("rear left: ", rearLeft);
         telemetry.addData("rear right: ", rearRight);
         telemetry.addData("front right: ", frontRight);
 
-        //add speed control here
-
+        //Handle speed controls
         if (gamepad1.left_bumper) {
             powerMultiplier = .8;//FAST MODE
         } else if (gamepad1.right_bumper) {
@@ -309,54 +288,26 @@ public class IMUTeleopTest extends LinearOpMode {
         rearLeft.setPower(rearLeftV * powerMultiplier);
         rearRight.setPower(rearRightV * powerMultiplier);
 
+/////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
+        if (gamepad1.dpad_down & gamepad1.a) {
+            ascentArm.setTargetPosition(store);
+            ascentArm.setPower(0.5);
+        }
 
+        if (gamepad1.dpad_left & gamepad1.b) {
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHook);
+        }
+
+        if (gamepad1.dpad_up & gamepad1.y) {
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHang);
+            claw.setPosition(ClawClosed);
+        }
 
     }
 
     public void peripheralmove() {
-
-//TODO add automations/safeties from benchmark
-        ////////////////// auto intake ///////////////////////
-
-        if (gamepad2.right_bumper && sampleColor != "red") {
-
-            intakeRunning = true;
-            intake.setPower(powerIn);
-
-            if ((sampleColor == "blue") //check color blue
-                    && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                    && (intakeRunning == true))//intake is running
-            {
-                intake.setPower(0);//Taking in sample
-                gamepad1.rumble(500);
-                intakeRunning = false;
-                intakeArm.setPosition(IntakeArmHold);
-
-            } else if ((sampleColor == "yellow")//check color yellow
-                    && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                    && (intakeRunning == true))//intake is running
-            {
-                intake.setPower(0);//intake is running
-                gamepad1.rumble(100);
-                intakeRunning = false;
-                intakeArm.setPosition(IntakeArmHold);
-            }
-        } else {
-            intakeRunning = false;
-            intake.setPower(0);
-        }
-
-        if ((sampleColor == "red")
-                && (sensorDistance.getDistance(DistanceUnit.CM) <= 5)) //distance less than 2 cm
-        {
-            intake.setPower(powerOut);//intake is running counterclockwise
-            intakeRunning = true;
-        }
-        if (gamepad2.left_bumper) {
-            intake.setPower(powerOut);//intake is running counterclockwise
-            intakeRunning = true;
-        }
-
 //////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
             intakeRunning = true;
@@ -371,12 +322,12 @@ public class IMUTeleopTest extends LinearOpMode {
             intake.setPower(0);
         }
 
-///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
+///////////////////////////////////SAMPLE COLOR DETECTION CLAW///////////////////////////
 
-        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+        if ((sensorColorClaw.blue() > sensorColorClaw.green()) && (sensorColorClaw.blue() > sensorColorClaw.red())) {
             sampleColor = "blue";
         }
-        if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+        if ((sensorColorClaw.red() > sensorColorClaw.blue()) && (sensorColorClaw.red() > sensorColorClaw.green())) {
             sampleColor = "red";
         } else {
             sampleColor = "yellow";
@@ -392,19 +343,22 @@ public class IMUTeleopTest extends LinearOpMode {
             linearSlideTarget = highBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
+            claw.setPosition(ClawClosed);
         }
         if (gamepad2.x && intakeUp == true) {
             slideDown = false;
             linearSlideTarget = lowBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
+            claw.setPosition(ClawClosed);
         }
         // bring slide to ground
-        if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5 && clawIsOpen == true) {
+        if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
             slideGoingDown = true;
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
+            linearSlide.setPower(0.8);
+            claw.setPosition(ClawOpen);
         }
         //slide has reached ground position
         if (touch.isPressed() == true && slideGoingDown == true) {
@@ -427,7 +381,7 @@ public class IMUTeleopTest extends LinearOpMode {
         }
         if (gamepad2.a && intakeUp == true) {
             slideDown = false;
-            linearSlideTarget = highChamberReleaseHeight;//high chamber height
+            linearSlideTarget = highChamberReleaseHeight;//high chamber release height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
@@ -438,21 +392,21 @@ public class IMUTeleopTest extends LinearOpMode {
 
         // brings arm to down/collect position
         if (gamepad2.dpad_down && slideDown == true) {
-            servoPosition = IntakeArmDown;
+            intakeArm.setPosition(IntakeArmDown);
             intakeUp = false;
 
             // brings arm to hold position
         } else if (gamepad2.dpad_left && slideDown == true) {
-            servoPosition = IntakeArmHold;
+            intakeArm.setPosition(IntakeArmHold);
             intakeUp = false;
 
             // brings arm to score/up position
         } else if (gamepad2.dpad_up) {
-            servoPosition = IntakeArmUp;
+            intakeArm.setPosition(IntakeArmUp);
             intakeUp = true;
         }
 
-        intakeArm.setPosition(servoPosition);
+
 
 
 
@@ -471,17 +425,28 @@ public class IMUTeleopTest extends LinearOpMode {
 
         ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 5 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+        if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 4 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
             gamepad2.rumble(500);
             claw.setPosition(ClawClosed);//Claw Closed
             clawLastClosed.reset();
             clawIsOpen=false;
         }
+        if(clawIsOpen == false && clawLastClosed.seconds() >0.5 && clawLastClosed.seconds()<1.5){
+            slideDown = false;
+            linearSlideTarget = autoGrabLSHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(0.6);
+        }
         telemetry.addData("claw open", clawIsOpen);
         telemetry.addData("Distance(claw)", sensorDistanceClaw.getDistance(DistanceUnit.CM));
-
-
+        telemetry.addData("Color vals, r", sensorColorClaw.red());
+        telemetry.addData("Color vals, g", sensorColorClaw.green());
+        telemetry.addData("Color vals, b", sensorColorClaw.blue());
+        telemetry.addData("Sample Color",sampleColor);
     }
+
+/////end of peripheral move////////
+
     /*-----------------------------------//
     * DO NOT WRITE CODE BELOW THIS LINE  *
     * -----------------------------------*/
