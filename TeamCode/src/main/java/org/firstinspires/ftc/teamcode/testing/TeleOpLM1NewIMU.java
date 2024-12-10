@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Competition;
+package org.firstinspires.ftc.teamcode.testing;
 
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
@@ -22,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 
 @TeleOp
-public class TeleOpLM1 extends OpMode {
+public class TeleOpLM1NewIMU extends OpMode {
 
 
    //HardwareITD robot;
@@ -79,16 +79,15 @@ public class TeleOpLM1 extends OpMode {
    int highChamberHeight = 1875;
    int lowChamberHeight = 538;
    int highChamberReleaseHeight = 1250;
-   int autoGrabLSHeight = 500;
 
    //from ServoTestJTH
    public Servo intakeArm = null;
 
    double servoPosition = 0.84;
 
-   double IntakeArmUp = .88;
+   double IntakeArmUp = .86;
    double IntakeArmHold = .6;
-   double IntakeArmDown = .5;
+   double IntakeArmDown = .52;
 
    double ClawOpen = 0.4;
    double ClawClosed = 0.8;
@@ -200,6 +199,17 @@ public class TeleOpLM1 extends OpMode {
    @Override
    public void loop() {
 
+      // Retrieve Rotational Angles and Velocities
+      YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+      AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+
+
+      telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
+      telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
+      telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
+      telemetry.update();
+
+      currentAngle = orientation.getYaw(AngleUnit.DEGREES);
       move();
       peripheral();
 
@@ -207,16 +217,6 @@ public class TeleOpLM1 extends OpMode {
 
    /////////////////////////move sequence//////////////////////////
    public void move() {
-      YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-      currentAngle = orientation.getYaw(AngleUnit.DEGREES);
-
-      // reset imu if static distarge messed up controls
-      if(gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.left_trigger > 0.5 && gamepad1.right_trigger > 0.5){
-         imu.resetYaw();
-      }
-      telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
-      telemetry.update();
-
 
       double theta = Math.toRadians(currentAngle);
 
@@ -270,7 +270,6 @@ public class TeleOpLM1 extends OpMode {
       if (gamepad1.dpad_up & gamepad1.y) {
          ascentArm.setPower(1);
          ascentArm.setTargetPosition(armHang);
-         claw.setPosition(ClawClosed);
 
       }
 
@@ -336,12 +335,12 @@ public class TeleOpLM1 extends OpMode {
          intake.setPower(0);
       }
 
-///////////////////////////////////SAMPLE COLOR DETECTION CLAW///////////////////////////
+///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
 
-      if ((sensorColorClaw.blue() > sensorColorClaw.green()) && (sensorColorClaw.blue() > sensorColorClaw.red())) {
+      if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
          sampleColor = "blue";
       }
-      if ((sensorColorClaw.red() > sensorColorClaw.blue()) && (sensorColorClaw.red() > sensorColorClaw.green())) {
+      if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
          sampleColor = "red";
       } else {
          sampleColor = "yellow";
@@ -357,22 +356,19 @@ public class TeleOpLM1 extends OpMode {
          linearSlideTarget = highBucketHeight;
          linearSlide.setTargetPosition(linearSlideTarget);
          linearSlide.setPower(1);
-         claw.setPosition(ClawClosed);
       }
       if (gamepad2.x && intakeUp == true) {
          slideDown = false;
          linearSlideTarget = lowBucketHeight;
          linearSlide.setTargetPosition(linearSlideTarget);
          linearSlide.setPower(1);
-         claw.setPosition(ClawClosed);
       }
       // bring slide to ground
-      if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
+      if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5 && clawIsOpen == true) {
          slideGoingDown = true;
          linearSlideTarget = 0;
          linearSlide.setTargetPosition(linearSlideTarget);
-         linearSlide.setPower(0.8);
-         claw.setPosition(ClawOpen);
+         linearSlide.setPower(1);
       }
    //slide has reached ground position
       if (touch.isPressed() == true && slideGoingDown == true) {
@@ -395,7 +391,7 @@ public class TeleOpLM1 extends OpMode {
       }
       if (gamepad2.a && intakeUp == true) {
          slideDown = false;
-         linearSlideTarget = highChamberReleaseHeight;//high chamber release height
+         linearSlideTarget = highChamberReleaseHeight;//high chamber height
          linearSlide.setTargetPosition(linearSlideTarget);
          linearSlide.setPower(1);
       }
@@ -406,21 +402,21 @@ public class TeleOpLM1 extends OpMode {
 
       // brings arm to down/collect position
       if (gamepad2.dpad_down && slideDown == true) {
-         intakeArm.setPosition(IntakeArmDown);
+         servoPosition = IntakeArmDown;
          intakeUp = false;
 
          // brings arm to hold position
       } else if (gamepad2.dpad_left && slideDown == true) {
-         intakeArm.setPosition(IntakeArmHold);
+         servoPosition = IntakeArmHold;
          intakeUp = false;
 
          // brings arm to score/up position
       } else if (gamepad2.dpad_up) {
-         intakeArm.setPosition(IntakeArmUp);
+         servoPosition = IntakeArmUp;
          intakeUp = true;
       }
 
-
+      intakeArm.setPosition(servoPosition);
 
 
 
@@ -439,24 +435,14 @@ public class TeleOpLM1 extends OpMode {
 
       ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
       //make sure to raise linear slide above wall after grabbing
-      if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 4 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+      if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 5 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
          gamepad2.rumble(500);
          claw.setPosition(ClawClosed);//Claw Closed
          clawLastClosed.reset();
          clawIsOpen=false;
       }
-      if(clawIsOpen == false && clawLastClosed.seconds() >0.5 && clawLastClosed.seconds()<1.5){
-         slideDown = false;
-         linearSlideTarget = autoGrabLSHeight;
-         linearSlide.setTargetPosition(linearSlideTarget);
-         linearSlide.setPower(0.6);
-      }
       telemetry.addData("claw open", clawIsOpen);
       telemetry.addData("Distance(claw)", sensorDistanceClaw.getDistance(DistanceUnit.CM));
-      telemetry.addData("Color vals, r", sensorColorClaw.red());
-      telemetry.addData("Color vals, g", sensorColorClaw.green());
-      telemetry.addData("Color vals, b", sensorColorClaw.blue());
-      telemetry.addData("Sample Color",sampleColor);
    }
 }
 

@@ -1,18 +1,15 @@
 package org.firstinspires.ftc.teamcode.testing;
 
-
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -20,14 +17,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utility.Constants;
 import org.firstinspires.ftc.teamcode.utility.ControlConfig;
 import org.firstinspires.ftc.teamcode.utility.HardwareCC;
@@ -50,14 +45,9 @@ import static org.firstinspires.ftc.teamcode.utility.Constants.scissorHookHeight
 import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightLeft;
 import static org.firstinspires.ftc.teamcode.utility.Constants.scissorLiftHeightRight;
 
-
-
-import java.util.Locale;
-
-@Disabled
 @TeleOp
-public class TeleOpTest extends OpMode {
-
+//@Disabled
+public class IMUTeleopTest extends LinearOpMode {
 
     //HardwareITD robot;
 
@@ -67,12 +57,16 @@ public class TeleOpTest extends OpMode {
     public DcMotor frontRight = null;
     public Servo claw;
 
-
-    // The IMU sensor object
-    IMU imu;
-
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
 
     private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime lastSlideDown = new ElapsedTime();
+    private final ElapsedTime lastGrab = new ElapsedTime();
+
+
+    private ElapsedTime clawLastClosed = new ElapsedTime();
 
     double frontLeftV;
     double rearLeftV;
@@ -82,22 +76,30 @@ public class TeleOpTest extends OpMode {
     double forward;
     double right;
     double clockwise;
-    int linearSlideZeroOffset = 0;
+
     double powerMultiplier = 0.7;
     double deadZone = Math.abs(0.2);
 
+    int linearSlideZeroOffset = 0;
+
+    public CRServo intake = null;
 
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
-    public CRServo intake = null;
-    boolean intakeRunning = true;
+    ColorSensor sensorColorClaw;
+    DistanceSensor sensorDistanceClaw;
     String sampleColor = "none";
+    TouchSensor touch;
+
+    boolean intakeRunning = true;
     boolean intakeUp = true;
+    boolean sliderunning = false;
+
     private DcMotor linearSlide;
     private int linearSlideTarget = 0;
     private int linearSlideZero = 0;
-    boolean sliderunning = false;
-    TouchSensor touch;
+
+
     int highBucketHeight = 3600;
     int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
@@ -106,6 +108,7 @@ public class TeleOpTest extends OpMode {
 
     //from ServoTestJTH
     public Servo intakeArm = null;
+
     double servoPosition = 0.84;
 
     double IntakeArmUp = .86;
@@ -129,11 +132,11 @@ public class TeleOpTest extends OpMode {
     double IMUAngle;
     double currentAngle;
 
-    boolean clampIsClosed = false;
     boolean slideDown = true;
     boolean slowMode = false;
     boolean slideGoingDown = false;
     boolean armIsScoring = false;
+    boolean clawIsOpen = true;
 
     //from AscentArmAutoTest
     private DcMotor ascentArm;
@@ -141,20 +144,22 @@ public class TeleOpTest extends OpMode {
     int armHook = 8515;
     int store = 0;
 
+
     @Override
-    public void init() {
-        // Retrieve and initialize the IMU.
-        imu = hardwareMap.get(IMU.class, "imu");
+    public void runOpMode() {
 
-        //To Do:  EDIT these two lines to match YOUR mounting configuration.
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu = hardwareMap.get(BNO055IMU.class, "imu2");
+        imu.initialize(parameters);
 
-        // Now initialize the IMU with this mounting orientation
-        // Note: if you choose two conflicting directions, this initialization will cause a code exception.
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        composeTelemetry();
 
         //robot = new HardwareITD(hardwareMap);
         rearLeft = hardwareMap.dcMotor.get("leftRear");
@@ -177,8 +182,9 @@ public class TeleOpTest extends OpMode {
 
         //////////////////intake & auto grab///////////////////////
         intake = hardwareMap.get(CRServo.class, "intake");
-        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
+        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//intake color sensor
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //intake distance sensor
+
 
         //////////////////linear slide///////////////////////
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
@@ -195,8 +201,9 @@ public class TeleOpTest extends OpMode {
 
         //////////////////claw////////////////////////////
         claw = hardwareMap.get(Servo.class, "claw");
-        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3");
+        sensorColorClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
+        sensorDistanceClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
+        claw.setPosition(ClawOpen);
 
 
         ///////////////Ascent Arm//////////////////////
@@ -207,45 +214,62 @@ public class TeleOpTest extends OpMode {
         //Turn on Run to Position and set initial target at store = 0
         ascentArm.setTargetPosition(store);
         ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
 
-    @Override
-    public void start() {
+
+
+
+        // End init phase
+        waitForStart();
+
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
         currentAngle = 0;
         runtime.reset();
-        imu.resetYaw();
+        // run until the end of the match (driver presses STOP)
+        while (opModeIsActive()) {
+
+            ControlConfig.update(gamepad1, gamepad2);
+
+            telemetry.update();
+
+            while (angles.firstAngle < 0 && opModeIsActive()) {
+                ControlConfig.update(gamepad1, gamepad2);
+
+                telemetry.update();
+                move();
+                peripheralmove();
+
+
+                currentAngle = angles.firstAngle + 360;
+                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
+            }
+
+            while (angles.firstAngle >= 0 && opModeIsActive()) {
+                ControlConfig.update(gamepad1, gamepad2);
+
+                telemetry.update();
+                move();
+                peripheralmove();
+
+
+                currentAngle = angles.firstAngle;
+                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
+            }
+
+            telemetry.addLine("null angle");
+        }
     }
 
-    @Override
-    public void loop() {
 
-        // Retrieve Rotational Angles and Velocities
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-        AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
-
-
-        telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
-        telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
-        telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
-        telemetry.update();
-
-        currentAngle = orientation.getYaw(AngleUnit.DEGREES);
-        move();
-        peripheral();
-
-    }
-
-    /////////////////////////move sequence//////////////////////////
-    public void move() {
-
+    public void move(){
+        ControlConfig.update(gamepad1, gamepad2);
         double theta = Math.toRadians(currentAngle);
 
         telemetry.addData("CurrentAngle", currentAngle);
         telemetry.addData("Theta", theta);
 
-        //Orientation set for robot facing driver
+        //update to change starting orientation if needed
         forward = gamepad1.left_stick_y; //left joystick down
-        right = -gamepad1.left_stick_x * 1.1; //left joystick left, adjusting for strafe
+        right = -gamepad1.left_stick_x; //left joystick left, adjusting for strafe
         clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         temp = (forward * Math.cos(theta) - right * Math.sin(theta));
@@ -254,17 +278,21 @@ public class TeleOpTest extends OpMode {
         forward = temp;
         right = side;
 
-        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
-        frontLeftV = (forward + right + clockwise) / denominator;
-        rearLeftV = (forward - right + clockwise) / denominator;
-        rearRightV = (forward + right - clockwise) / denominator;
-        frontRightV = (forward - right - clockwise) / denominator;
+        telemetry.addData("right: ", right);
+        telemetry.addData("forward: ", forward);
+        telemetry.addData("temp: ", temp);
+        telemetry.addData("side: ", side);
+        telemetry.addData("clockwise: ", clockwise);
 
-        // Handle speed control
-        frontLeft.setPower(frontLeftV * powerMultiplier);
-        frontRight.setPower(frontRightV * powerMultiplier);
-        rearLeft.setPower(rearLeftV * powerMultiplier);
-        rearRight.setPower(rearRightV * powerMultiplier);
+        frontLeftV = forward + right + clockwise;
+        rearLeftV = forward - right + clockwise;
+        rearRightV = forward + right - clockwise;
+        frontRightV = forward - right - clockwise;
+
+        telemetry.addData("front left: ", frontLeft);
+        telemetry.addData("rear left: ", rearLeft);
+        telemetry.addData("rear right: ", rearRight);
+        telemetry.addData("front right: ", frontRight);
 
         //add speed control here
 
@@ -276,28 +304,16 @@ public class TeleOpTest extends OpMode {
             powerMultiplier = .6; //NORMAL MODE
         }
 
-/////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
-        if (gamepad1.dpad_down & gamepad1.a) {
-            ascentArm.setTargetPosition(store);
-            ascentArm.setPower(0.5);
-        }
+        frontLeft.setPower(frontLeftV * powerMultiplier);
+        frontRight.setPower(frontRightV * powerMultiplier);
+        rearLeft.setPower(rearLeftV * powerMultiplier);
+        rearRight.setPower(rearRightV * powerMultiplier);
 
-        if (gamepad1.dpad_left & gamepad1.b) {
-            ascentArm.setPower(1);
-            ascentArm.setTargetPosition(armHook);
-        }
 
-        if (gamepad1.dpad_up & gamepad1.y) {
-            ascentArm.setPower(1);
-            ascentArm.setTargetPosition(armHang);
 
-        }
-
-        telemetry.addData("encoder", ascentArm.getCurrentPosition());
-        telemetry.update();
     }
 
-    public void peripheral() {
+    public void peripheralmove() {
 
 //TODO add automations/safeties from benchmark
         ////////////////// auto intake ///////////////////////
@@ -342,18 +358,18 @@ public class TeleOpTest extends OpMode {
         }
 */
 //////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
-               if (gamepad2.left_trigger > .5) {
-                    intakeRunning = true;
-                    intake.setPower(powerIn);
-                }
-                else if (gamepad2.right_trigger > .5) {
-                    intake.setPower(powerOut);//intake is running counterclockwise
-                    intakeRunning = true;
-                }
-                else {
-                    intakeRunning = false;
-                    intake.setPower(0);
-                }
+        if (gamepad2.right_bumper) {
+            intakeRunning = true;
+            intake.setPower(powerIn);
+        }
+        else if (gamepad2.left_bumper) {
+            intake.setPower(powerOut);//intake is running counterclockwise
+            intakeRunning = true;
+        }
+        else {
+            intakeRunning = false;
+            intake.setPower(0);
+        }
 
 ///////////////////////////////////SAMPLE COLOR DETECTION///////////////////////////
 
@@ -366,12 +382,7 @@ public class TeleOpTest extends OpMode {
             sampleColor = "yellow";
         }
 
-        telemetry.addData("Color vals, r", sensorColor.red());
-        telemetry.addData("Color vals, g", sensorColor.green());
-        telemetry.addData("Color vals, b", sensorColor.blue());
-        telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
-        telemetry.addData("Color Detected", sampleColor);
-        telemetry.addData("intake power", intake.getPower());
+
 
 //////////////////////////////////////////linear slide///////////////////////
 
@@ -389,13 +400,13 @@ public class TeleOpTest extends OpMode {
             linearSlide.setPower(1);
         }
         // bring slide to ground
-        if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
+        if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5 && clawIsOpen == true) {
             slideGoingDown = true;
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(0.8);
+            linearSlide.setPower(1);
         }
-
+        //slide has reached ground position
         if (touch.isPressed() == true && slideGoingDown == true) {
             slideDown=true;
             slideGoingDown = false;
@@ -420,7 +431,7 @@ public class TeleOpTest extends OpMode {
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
-        telemetry.addData("encoder", linearSlide.getCurrentPosition());
+
 
 
 ////////////////////////////////////////intake arm///////////////////////
@@ -430,12 +441,12 @@ public class TeleOpTest extends OpMode {
             servoPosition = IntakeArmDown;
             intakeUp = false;
 
-        // brings arm to hold position
+            // brings arm to hold position
         } else if (gamepad2.dpad_left && slideDown == true) {
             servoPosition = IntakeArmHold;
             intakeUp = false;
 
-        // brings arm to score/up position
+            // brings arm to score/up position
         } else if (gamepad2.dpad_up) {
             servoPosition = IntakeArmUp;
             intakeUp = true;
@@ -443,28 +454,107 @@ public class TeleOpTest extends OpMode {
 
         intakeArm.setPosition(servoPosition);
 
-        telemetry.addData("position", servoPosition);
-        telemetry.addData("intake arm", intakeArm.getPosition());
+
 
 ////////////////////////////////////////manual claw controls///////////////////////
 
         if (gamepad2.left_trigger > 0.5) {
             claw.setPosition(ClawOpen);
+            clawIsOpen = true;
         }
 
         if (gamepad2.right_trigger > 0.5) {
             claw.setPosition(ClawClosed);
+            clawIsOpen = false;
         }
 
 
         ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
+        if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 5 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+            gamepad2.rumble(500);
+            claw.setPosition(ClawClosed);//Claw Closed
+            clawLastClosed.reset();
+            clawIsOpen=false;
+        }
+        telemetry.addData("claw open", clawIsOpen);
+        telemetry.addData("Distance(claw)", sensorDistanceClaw.getDistance(DistanceUnit.CM));
+
 
     }
+    /*-----------------------------------//
+    * DO NOT WRITE CODE BELOW THIS LINE  *
+    * -----------------------------------*/
+    void composeTelemetry() {
+
+        // At the beginning of each telemetry update, grab a bunch of data
+        // from the IMU that we will then display in separate lines.
+        telemetry.addAction(new Runnable() { @Override public void run()
+        {
+            // Acquiring the angles is relatively expensive; we don't want
+            // to do that in each of the three items that need that info, as that's
+            // three times the necessary expense.
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            gravity  = imu.getGravity();
+        }
+        });
+
+        telemetry.addLine()
+                .addData("status", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getSystemStatus().toShortString();
+                    }
+                })
+                .addData("calib", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getCalibrationStatus().toString();
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("heading", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.firstAngle);
+                    }
+                })
+                .addData("roll", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.secondAngle);
+                    }
+                })
+                .addData("pitch", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("grvty", new Func<String>() {
+                    @Override public String value() {
+                        return gravity.toString();
+                    }
+                })
+                .addData("mag", new Func<String>() {
+                    @Override public String value() {
+                        return String.format(Locale.getDefault(), "%.3f",
+                                Math.sqrt(gravity.xAccel*gravity.xAccel
+                                        + gravity.yAccel*gravity.yAccel
+                                        + gravity.zAccel*gravity.zAccel));
+                    }
+                });
+
+        // telemetry.addData("currentAngle", "%.1f", currentAngle);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // Formatting
+    //----------------------------------------------------------------------------------------------
+
+    String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
 }
-
-
-
-    /////end of peripheral move////////
-
-

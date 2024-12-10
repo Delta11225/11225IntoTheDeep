@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleOpTestLM1")
+@Autonomous(preselectTeleOp = "TeleOpLM1")
 
 public class AutoNetSide extends LinearOpMode {
 
