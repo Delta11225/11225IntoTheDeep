@@ -317,7 +317,7 @@ public class IMUTeleopTest extends LinearOpMode {
 
 //TODO add automations/safeties from benchmark
         ////////////////// auto intake ///////////////////////
-        /*
+
         if (gamepad2.right_bumper && sampleColor != "red") {
 
             intakeRunning = true;
@@ -325,7 +325,7 @@ public class IMUTeleopTest extends LinearOpMode {
 
             if ((sampleColor == "blue") //check color blue
                     && (sensorDistance.getDistance(DistanceUnit.CM) <= 2) //distance less than 2 cm
-                    && (intakeRunning == true))//claw is open
+                    && (intakeRunning == true))//intake is running
             {
                 intake.setPower(0);//Taking in sample
                 gamepad1.rumble(500);
@@ -356,7 +356,7 @@ public class IMUTeleopTest extends LinearOpMode {
             intake.setPower(powerOut);//intake is running counterclockwise
             intakeRunning = true;
         }
-*/
+
 //////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
             intakeRunning = true;
