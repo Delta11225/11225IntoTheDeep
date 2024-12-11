@@ -376,10 +376,10 @@ public class TeleOpLM1 extends OpMode {
          slideGoingDown = false;
          linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
          linearSlide.setPower(0);
-         ascentArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-         ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+         linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
          linearSlide.setTargetPosition(0);
-         ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
       }

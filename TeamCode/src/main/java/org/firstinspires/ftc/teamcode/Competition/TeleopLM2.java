@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode.testing;
+package org.firstinspires.ftc.teamcode.Competition;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -31,54 +32,56 @@ import java.util.Locale;
 //@Disabled
 public class TeleopLM2 extends LinearOpMode {
 
-    //HardwareITD robot;
+    //LED lights
+    RevBlinkinLedDriver lights;
 
+    //DC Motors
     public DcMotor rearLeft = null;
     public DcMotor rearRight = null;
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
-    public Servo claw;
+    public DcMotor linearSlide;
+    private DcMotor ascentArm;
 
+    //Servos
+    public Servo intakeArm = null;
+    public Servo SpecimenClaw;
+    public Servo ArmClaw;
+
+    //Sensors
+    ColorSensor sensorColor; //color sensor on intake arm
+    DistanceSensor sensorDistance; //distance sensor on intake arm
+    ColorSensor sensorColorSpecimenClaw; //color sensor on specimen claw
+    DistanceSensor sensorDistanceSpecimenClaw;//distance sensor on specimen claw
+    TouchSensor touchLinSlide; // touch sensor at bottom of linear slide to detect when it has reached bottom
+
+    //IMU
     BNO055IMU imu;
     Orientation angles;
     Acceleration gravity;
 
+    //Elapsed Time variables
     private ElapsedTime matchtime = new ElapsedTime();
-
     private ElapsedTime clawLastClosed = new ElapsedTime();
 
+    //drive motor power variables
     double frontLeftV;
     double rearLeftV;
     double frontRightV;
     double rearRightV;
 
+    //mechanum drive variables
     double forward;
     double right;
     double clockwise;
+    double denominator;
+    double temp;
+    double side;
+    double currentAngle;
+    double powerMultiplier;//drive power multiplier
 
-    double powerMultiplier = 0.7;
-    double deadZone = Math.abs(0.2);
-
-    int linearSlideZeroOffset = 0;
-
-    public CRServo intake = null;
-
-    ColorSensor sensorColor;
-    DistanceSensor sensorDistance;
-    ColorSensor sensorColorClaw;
-    DistanceSensor sensorDistanceClaw;
-    String sampleColor = "none";
-    TouchSensor touch;
-
-    boolean intakeRunning = true;
-    boolean intakeUp = true;
-    boolean sliderunning = false;
-
-    private DcMotor linearSlide;
-    private int linearSlideTarget = 0;
-    private int linearSlideZero = 0;
-
-
+    //linear slide height variables
+    int linearSlideTarget = 0; //setting intitial target to 0
     int highBucketHeight = 3600;
     int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
@@ -86,43 +89,34 @@ public class TeleopLM2 extends LinearOpMode {
     int highChamberReleaseHeight = 1250;
     int autoGrabLSHeight = 500;
 
-    //from ServoTestJTH
-    public Servo intakeArm = null;
-
-
-
-    double IntakeArmUp = .88;
-    double IntakeArmHold = .6;
-    double IntakeArmDown = .5;
-
-    double ClawOpen = 0.4;
-    double ClawClosed = 0.8;
-
-
-    double powerIn = 1.0;
-    double powerOut = -1.0;
-
-    double denominator;
-    double temp;
-    double side;
-
-    double IMUAngle;
-    double currentAngle;
-
-    boolean slideDown = true;
-    boolean slowMode = false;
-    boolean slideGoingDown = false;
-    boolean clawIsOpen = true;
-
-    //from AscentArmAutoTest
-    private DcMotor ascentArm;
+    //ascent arm encoder locations
     int armHang = 234;
     int armHook = 8515;
     int store = 0;
 
+    //intake arm variables
+    double IntakeArmUp = .88;
+    double IntakeArmHold = .6;
+    double IntakeArmDown = .5;
+
+    //specimen claw variables
+    double ClawOpen = 0.4;
+    double ClawClosed = 0.8;
+
+    //boolean varibales
+    boolean ArmUp = true;
+    boolean slideDown = true;
+    boolean slideGoingDown = false;
+    boolean SpecimenclawIsOpen = true;
+
+    //String Variables
+    String sampleColor = "none";
+
     @Override
     public void runOpMode() {
+////////////////////////////////Init Phase/////////////////////////////////////////////////////////////////
 
+    //////////////initialize IMU//////////////////////////
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -136,7 +130,7 @@ public class TeleopLM2 extends LinearOpMode {
 
         composeTelemetry();
 
-        //robot = new HardwareITD(hardwareMap);
+    ////////////initialize drive motors////////////////
         rearLeft = hardwareMap.dcMotor.get("leftRear");
         rearLeft.setDirection(DcMotor.Direction.REVERSE);
 
@@ -149,39 +143,36 @@ public class TeleopLM2 extends LinearOpMode {
         rearRight = hardwareMap.dcMotor.get("rightRear");
         rearRight.setDirection(DcMotor.Direction.FORWARD);
 
-        //initialize drive motors
         frontLeft.setPower(0);
         frontRight.setPower(0);
         rearLeft.setPower(0);
         rearRight.setPower(0);
 
-        //////////////////intake & auto grab///////////////////////
-        intake = hardwareMap.get(CRServo.class, "intake");
-        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//intake color sensor
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //intake distance sensor
+    //////////////////initialize intake & auto grab///////////////////////
+        sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//armClaw color sensor
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //armClaw distance sensor
 
-
-        //////////////////linear slide///////////////////////
+    //////////////////initialize linear slide///////////////////////
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlide.setDirection(DcMotor.Direction.REVERSE);
         linearSlide.setTargetPosition(linearSlideTarget);
         linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         linearSlide.setZeroPowerBehavior(BRAKE);
-        touch = hardwareMap.get(TouchSensor.class, "touch");
+        touchLinSlide = hardwareMap.get(TouchSensor.class, "touch");
 
-        //////////////////intake arm///////////////////////
+    //////////////////initialize intake arm///////////////////////
         intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         intakeArm.setPosition(IntakeArmUp);
 
-        //////////////////claw////////////////////////////
-        claw = hardwareMap.get(Servo.class, "claw");
-        sensorColorClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
-        sensorDistanceClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
-        claw.setPosition(ClawOpen);
+    //////////////////initialize specimen claw////////////////////////////
+        SpecimenClaw = hardwareMap.get(Servo.class, "claw");
+        sensorColorSpecimenClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
+        sensorDistanceSpecimenClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
+        SpecimenClaw.setPosition(ClawOpen);
 
 
-        ///////////////Ascent Arm//////////////////////
+    /////////////// initialize Ascent Arm//////////////////////
         ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
         ascentArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -191,11 +182,15 @@ public class TeleopLM2 extends LinearOpMode {
         ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
+    /////////////// initialize LED lights//////////////////////
+        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        //LED lights light up to signal that init phase complete
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
 
+/////////////////////////////////////// End init phase/////////////////////////////////////////////////////////////
 
-        // End init phase
         waitForStart();
-
+        //operations to complete 1 time at the start of teleOp (DO NOT WANT TO LOOP)
         matchtime.reset();
         clawLastClosed.reset();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
@@ -204,29 +199,23 @@ public class TeleopLM2 extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            ControlConfig.update(gamepad1, gamepad2);
-
             telemetry.update();
 
             while (angles.firstAngle < 0 && opModeIsActive()) {
-                ControlConfig.update(gamepad1, gamepad2);
 
                 telemetry.update();
                 move();
                 peripheralmove();
-
 
                 currentAngle = angles.firstAngle + 360;
                 telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
             }
 
             while (angles.firstAngle >= 0 && opModeIsActive()) {
-                ControlConfig.update(gamepad1, gamepad2);
 
                 telemetry.update();
                 move();
                 peripheralmove();
-
 
                 currentAngle = angles.firstAngle;
                 telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
@@ -238,15 +227,14 @@ public class TeleopLM2 extends LinearOpMode {
 
 
     public void move(){
-        ControlConfig.update(gamepad1, gamepad2);
         double theta = Math.toRadians(currentAngle);
 
         telemetry.addData("CurrentAngle", currentAngle);
         telemetry.addData("Theta", theta);
 
         //update to change starting orientation if needed
-        forward = gamepad1.left_stick_y; //left joystick down
-        right = -gamepad1.left_stick_x; //left joystick left, adjusting for strafe
+        forward = -gamepad1.left_stick_y; //left joystick up
+        right = gamepad1.left_stick_x; //left joystick right
         clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         temp = (forward * Math.cos(theta) - right * Math.sin(theta));
@@ -288,6 +276,40 @@ public class TeleopLM2 extends LinearOpMode {
         rearLeft.setPower(rearLeftV * powerMultiplier);
         rearRight.setPower(rearRightV * powerMultiplier);
 
+
+
+    }
+
+    public void peripheralmove() {
+///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
+
+        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red()) && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) {
+            sampleColor = "blue";
+        }
+        else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green()) && sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+            sampleColor = "red";
+        }
+        else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+            sampleColor = "yellow";
+        }
+        else {
+            sampleColor = "none";
+        }
+
+//////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
+
+        if (sampleColor == "blue") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+        } else if (sampleColor == "red") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+        } else if (sampleColor == "yellow") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+        } else {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+        }
+
+                                //////////////GAMEPAD 1//////////////
+
 /////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
         if (gamepad1.dpad_down & gamepad1.a) {
             ascentArm.setTargetPosition(store);
@@ -302,55 +324,36 @@ public class TeleopLM2 extends LinearOpMode {
         if (gamepad1.dpad_up & gamepad1.y) {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHang);
-            claw.setPosition(ClawClosed);
+            //close specimen claw for safe hanging
+            SpecimenClaw.setPosition(ClawClosed);
         }
 
-    }
 
-    public void peripheralmove() {
-//////////////////////////MANUAL INTAKE CONTROLS///////////////////////////////////////////
+                                //////////////GAMEPAD 2//////////////
+
+//////////////////////////MANUAL ARM CLAW CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
-            intakeRunning = true;
-            intake.setPower(powerIn);
+
         }
         else if (gamepad2.left_bumper) {
-            intake.setPower(powerOut);//intake is running counterclockwise
-            intakeRunning = true;
-        }
-        else {
-            intakeRunning = false;
-            intake.setPower(0);
-        }
 
-///////////////////////////////////SAMPLE COLOR DETECTION CLAW///////////////////////////
-
-        if ((sensorColorClaw.blue() > sensorColorClaw.green()) && (sensorColorClaw.blue() > sensorColorClaw.red())) {
-            sampleColor = "blue";
         }
-        if ((sensorColorClaw.red() > sensorColorClaw.blue()) && (sensorColorClaw.red() > sensorColorClaw.green())) {
-            sampleColor = "red";
-        } else {
-            sampleColor = "yellow";
-        }
-
-
 
 //////////////////////////////////////////linear slide///////////////////////
 
-
-        if (gamepad2.y && intakeUp == true) {
+        if (gamepad2.y && ArmUp == true) {
             slideDown = false;
             linearSlideTarget = highBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
-            claw.setPosition(ClawClosed);
+            SpecimenClaw.setPosition(ClawClosed);
         }
-        if (gamepad2.x && intakeUp == true) {
+        if (gamepad2.x && ArmUp == true) {
             slideDown = false;
             linearSlideTarget = lowBucketHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
-            claw.setPosition(ClawClosed);
+            SpecimenClaw.setPosition(ClawClosed);
         }
         // bring slide to ground
         if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
@@ -358,90 +361,81 @@ public class TeleopLM2 extends LinearOpMode {
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.8);
-            claw.setPosition(ClawOpen);
+            SpecimenClaw.setPosition(ClawOpen);
         }
         //slide has reached ground position
-        if (touch.isPressed() == true && slideGoingDown == true) {
+        if (touchLinSlide.isPressed() == true && slideGoingDown == true) {
             slideDown=true;
             slideGoingDown = false;
             linearSlide.setTargetPosition(linearSlide.getCurrentPosition());
             linearSlide.setPower(0);
-            ascentArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             linearSlide.setTargetPosition(0);
-            ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
+            linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        if (gamepad2.b && intakeUp == true) {
+        if (gamepad2.b && ArmUp == true) {
             slideDown = false;
             linearSlideTarget = highChamberHeight;//high chamber height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
-        if (gamepad2.a && intakeUp == true) {
+        if (gamepad2.a && ArmUp == true) {
             slideDown = false;
             linearSlideTarget = highChamberReleaseHeight;//high chamber release height
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
         }
 
-
-
 ////////////////////////////////////////intake arm///////////////////////
 
         // brings arm to down/collect position
         if (gamepad2.dpad_down && slideDown == true) {
             intakeArm.setPosition(IntakeArmDown);
-            intakeUp = false;
+            ArmUp = false;
 
             // brings arm to hold position
         } else if (gamepad2.dpad_left && slideDown == true) {
             intakeArm.setPosition(IntakeArmHold);
-            intakeUp = false;
+            ArmUp = false;
 
             // brings arm to score/up position
         } else if (gamepad2.dpad_up) {
             intakeArm.setPosition(IntakeArmUp);
-            intakeUp = true;
+            ArmUp = true;
         }
 
-
-
-
-
-////////////////////////////////////////manual claw controls///////////////////////
+////////////////////////////////////////manual speciment claw controls///////////////////////
 
         if (gamepad2.left_trigger > 0.5) {
-            claw.setPosition(ClawOpen);
-            clawIsOpen = true;
+            SpecimenClaw.setPosition(ClawOpen);
+            SpecimenclawIsOpen = true;
         }
 
         if (gamepad2.right_trigger > 0.5) {
-            claw.setPosition(ClawClosed);
-            clawIsOpen = false;
+            SpecimenClaw.setPosition(ClawClosed);
+            SpecimenclawIsOpen = false;
         }
 
-
-        ////////////////////////////////////////CLAW AUTOGRAB///////////////////////
+////////////////////////////////////////SPECIMEN CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistanceClaw.getDistance(DistanceUnit.CM) <= 4 && clawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 4 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
             gamepad2.rumble(500);
-            claw.setPosition(ClawClosed);//Claw Closed
+            SpecimenClaw.setPosition(ClawClosed);//Claw Closed
             clawLastClosed.reset();
-            clawIsOpen=false;
+            SpecimenclawIsOpen=false;
         }
-        if(clawIsOpen == false && clawLastClosed.seconds() >0.5 && clawLastClosed.seconds()<1.5){
+        if(SpecimenclawIsOpen == false && clawLastClosed.seconds()>0.25 && clawLastClosed.seconds()<1){
             slideDown = false;
             linearSlideTarget = autoGrabLSHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.6);
         }
-        telemetry.addData("claw open", clawIsOpen);
-        telemetry.addData("Distance(claw)", sensorDistanceClaw.getDistance(DistanceUnit.CM));
-        telemetry.addData("Color vals, r", sensorColorClaw.red());
-        telemetry.addData("Color vals, g", sensorColorClaw.green());
-        telemetry.addData("Color vals, b", sensorColorClaw.blue());
+        telemetry.addData("claw open", SpecimenclawIsOpen);
+        telemetry.addData("Distance(claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
+        telemetry.addData("Color vals, r", sensorColorSpecimenClaw.red());
+        telemetry.addData("Color vals, g", sensorColorSpecimenClaw.green());
+        telemetry.addData("Color vals, b", sensorColorSpecimenClaw.blue());
         telemetry.addData("Sample Color",sampleColor);
     }
 
