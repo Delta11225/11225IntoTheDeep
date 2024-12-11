@@ -193,7 +193,7 @@ public class TeleopLM2 extends LinearOpMode {
     /////////////// initialize LED lights//////////////////////
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
         //LED lights light up to signal that init phase complete
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
 
 /////////////////////////////////////// End init phase/////////////////////////////////////////////////////////////
 
@@ -306,14 +306,18 @@ public class TeleopLM2 extends LinearOpMode {
 
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
-        if (sampleColor == "blue") {
+        if ((matchtime.seconds()>100)&&matchtime.seconds()<120) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+        } else if (sampleColor == "blue") {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
         } else if (sampleColor == "red") {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
         } else if (sampleColor == "yellow") {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+        } else if ((matchtime.seconds()>120)) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CONFETTI);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
         }
 
                                 //////////////GAMEPAD 1//////////////
@@ -336,6 +340,8 @@ public class TeleopLM2 extends LinearOpMode {
             SpecimenClaw.setPosition(ClawClosed);
         }
 
+        if (matchtime.seconds()<90 && matchtime.seconds()>91)
+            gamepad1.rumble(500);
 
                                 //////////////GAMEPAD 2//////////////
 
