@@ -152,9 +152,11 @@ public class TeleopLM2 extends LinearOpMode {
         rearLeft.setPower(0);
         rearRight.setPower(0);
 
-    //////////////////initialize intake & auto grab///////////////////////
+    //////////////////initialize arm claw & Sensor///////////////////////
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//armClaw color sensor
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //armClaw distance sensor
+        ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
+        ArmClaw.setPosition(ArmClawOpen);
 
     //////////////////initialize linear slide///////////////////////
         linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
@@ -169,11 +171,9 @@ public class TeleopLM2 extends LinearOpMode {
         intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         intakeArm.setPosition(IntakeArmUp);
 
-    //////////////////arm CLAW ///////////////////////
-        ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
-        ArmClaw.setPosition(ArmClawOpen);
 
-    //////////////////initialize specimen claw////////////////////////////
+
+    //////////////////initialize specimen claw & sensors////////////////////////////
         SpecimenClaw = hardwareMap.get(Servo.class, "claw");
         sensorColorSpecimenClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
         sensorDistanceSpecimenClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
