@@ -95,9 +95,13 @@ public class TeleopLM2 extends LinearOpMode {
     int store = 0;
 
     //intake arm variables
-    double IntakeArmUp = .88;
+    double IntakeArmUp = .84;
     double IntakeArmHold = .6;
     double IntakeArmDown = .5;
+
+    // Arm Claw Variables
+    double ArmClawOpen = 0;
+    double ArmClawClosed = 0.5;
 
     //specimen claw variables
     double ClawOpen = 0.4;
@@ -164,6 +168,10 @@ public class TeleopLM2 extends LinearOpMode {
     //////////////////initialize intake arm///////////////////////
         intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         intakeArm.setPosition(IntakeArmUp);
+
+    //////////////////arm CLAW ///////////////////////
+        ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
+        ArmClaw.setPosition(ArmClawOpen);
 
     //////////////////initialize specimen claw////////////////////////////
         SpecimenClaw = hardwareMap.get(Servo.class, "claw");
@@ -305,7 +313,7 @@ public class TeleopLM2 extends LinearOpMode {
         } else if (sampleColor == "yellow") {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
         } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CONFETTI);
         }
 
                                 //////////////GAMEPAD 1//////////////
@@ -333,10 +341,10 @@ public class TeleopLM2 extends LinearOpMode {
 
 //////////////////////////MANUAL ARM CLAW CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
-
+        ArmClaw.setPosition(ArmClawOpen);
         }
         else if (gamepad2.left_bumper) {
-
+        ArmClaw.setPosition(ArmClawClosed);
         }
 
 //////////////////////////////////////////linear slide///////////////////////
