@@ -25,7 +25,7 @@ public class NewArmClawTest extends OpMode {
     private ElapsedTime matchtime = new ElapsedTime();
 
     // Arm Claw Variables
-    double ArmClawOpen = 0;
+    double ArmClawOpen = 0.3;
     double ArmClawClosed = 0.5;
 
     //String Variables
@@ -54,43 +54,65 @@ public class NewArmClawTest extends OpMode {
     public void loop() {
         ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
 
-        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red()) && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) {
-            sampleColor = "blue";
-        }
-        else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green()) && sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-            sampleColor = "red";
-        }
-        else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-            sampleColor = "yellow";
-        }
-        else {
-            sampleColor = "none";
-        }
-
+        if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10)) {
+            if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                sampleColor = "blue-detected";
+            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                sampleColor = "red-detected";
+            } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10) && (sensorDistance.getDistance(DistanceUnit.CM) > 2)) {
+                sampleColor = "yellow-detected";
+            } else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+                if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                    sampleColor = "blue";
+                } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                    sampleColor = "red";
+                } else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+                    sampleColor = "yellow";
+                }
+            } else {
+                sampleColor = "none";
+            }
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
-        if ((matchtime.seconds()>100)&&matchtime.seconds()<120) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
-        } else if (sampleColor == "blue") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
-        } else if (sampleColor == "red") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
-        } else if (sampleColor == "yellow") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
-        } else if ((matchtime.seconds()>120)) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
-        } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            if (sampleColor == "blue") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+            } else if (sampleColor == "red") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+            } else if (sampleColor == "yellow") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+            } else {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
+
+            ////////////////match time leds///////////////////////////
+
+
+            if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+
+            } else if ((matchtime.seconds() > 120)) {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
+            }
+
+//////////////////////////////New Arm Claw//////////////////////////////////////
+            if ((sampleColor == "blue") || (sampleColor == "yellow")) {
+                ArmClaw.setPosition(ArmClawClosed);
+            } else {
+                ArmClaw.setPosition(ArmClawOpen);
+            }
+
+            if (gamepad1.right_stick_x < -0.5) {
+                ArmClaw.setPosition(ArmClawOpen);
+            } else if (gamepad1.right_stick_x >= 0.5) {
+                ArmClaw.setPosition(ArmClawClosed);
+            }
+
+            telemetry.addData("Color vals, r", sensorColor.red());
+            telemetry.addData("Color vals, g", sensorColor.green());
+            telemetry.addData("Color vals, b", sensorColor.blue());
+            telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
+            telemetry.addData("Sample color detected", sampleColor);
         }
-
-
-
-
-        telemetry.addData("Color vals, r", sensorColor.red());
-        telemetry.addData("Color vals, g", sensorColor.green());
-        telemetry.addData("Color vals, b", sensorColor.blue());
-        telemetry.addData("Distance(cm)", sensorDistance.getDistance(DistanceUnit.CM));
-        telemetry.addData("Sample color detected", sampleColor);
     }
 }
 
