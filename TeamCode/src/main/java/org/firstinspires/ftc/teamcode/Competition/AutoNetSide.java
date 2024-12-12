@@ -81,7 +81,7 @@ public class AutoNetSide extends LinearOpMode {
             .lineToLinearHeading(new Pose2d(30, 35, Math.toRadians(340)))
                 .addSpatialMarker(new Vector2d(6, 37),() ->{
                     robot.intakeArm.setPosition(IntakeArmDown);
-                    robot.intake.setPower(powerIn);
+                    //robot.intake.setPower(powerIn);
                 })
 
             .forward(4)
@@ -90,7 +90,7 @@ public class AutoNetSide extends LinearOpMode {
             .waitSeconds(0.5)
                 .addDisplacementMarker(()->{
                     robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(0);
+                    //robot.intake.setPower(0);
                 })
                 // Approaches high basket
                 .lineToLinearHeading(new Pose2d(52,59, Math.toRadians(45)))
@@ -108,7 +108,7 @@ public class AutoNetSide extends LinearOpMode {
                 .addDisplacementMarker(()->{
                     //drops off first sample in basket
                     robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(powerOut);
+                    //robot.intake.setPower(powerOut);
                 })
 
                 .forward(0.001)
@@ -116,7 +116,7 @@ public class AutoNetSide extends LinearOpMode {
                 .back(3)
                 .addDisplacementMarker(()->{
                     robot.intakeArm.setPosition(IntakeArmUp);
-                    robot.intake.setPower(0);
+                    //robot.intake.setPower(0);
                 })
 
             .build();
@@ -127,14 +127,14 @@ public class AutoNetSide extends LinearOpMode {
             .lineToLinearHeading(new Pose2d(35,27, Math.toRadians(0)))
                 .addSpatialMarker(new Vector2d(50, 55),() ->{
                     robot.intakeArm.setPosition(IntakeArmHold);
-                    robot.intake.setPower(powerIn);
+                    //robot.intake.setPower(powerIn);
                 })
                 //grab sample with intake
             .forward(2)
             .waitSeconds(0.1)
             .addDisplacementMarker(()->{
                 robot.intakeArm.setPosition(IntakeArmDown);
-                robot.intake.setPower(powerIn);
+                //robot.intake.setPower(powerIn);
                 })
             .forward(4)
             .waitSeconds(0.4)
@@ -142,7 +142,7 @@ public class AutoNetSide extends LinearOpMode {
             .waitSeconds(0.6)
             .addDisplacementMarker(()->{
                 robot.intakeArm.setPosition(IntakeArmUp);
-                robot.intake.setPower(0);
+                //robot.intake.setPower(0);
                 })
 
                 .build();
@@ -164,7 +164,7 @@ public class AutoNetSide extends LinearOpMode {
             .addDisplacementMarker(()->{
                 //drops second sample in basket
                 robot.intakeArm.setPosition(IntakeArmUp);
-                robot.intake.setPower(powerOut);
+                //robot.intake.setPower(powerOut);
                 })
 
             .forward(0.001)
@@ -172,7 +172,7 @@ public class AutoNetSide extends LinearOpMode {
             .back(3)
             .addDisplacementMarker(()->{
                 robot.intakeArm.setPosition(IntakeArmUp);
-                robot.intake.setPower(0);
+                //robot.intake.setPower(0);
                 })
 
             .build();
