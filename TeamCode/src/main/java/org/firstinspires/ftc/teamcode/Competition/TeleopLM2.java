@@ -96,7 +96,7 @@ public class TeleopLM2 extends LinearOpMode {
 
     //intake arm variables
     double IntakeArmUp = .84;
-    double IntakeArmHold = .6;
+    double IntakeArmHold = .575;
     double IntakeArmDown = .5;
 
     // Arm Claw Variables
@@ -348,10 +348,10 @@ public class TeleopLM2 extends LinearOpMode {
 
 //////////////////////////MANUAL ARM CLAW CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
-        ArmClaw.setPosition(ArmClawOpen);
+        ArmClaw.setPosition(ArmClawClosed);
         }
         else if (gamepad2.left_bumper) {
-        ArmClaw.setPosition(ArmClawClosed);
+        ArmClaw.setPosition(ArmClawOpen);
         }
 
 //////////////////////////////////////////linear slide///////////////////////
