@@ -54,23 +54,25 @@ public class NewArmClawTest extends OpMode {
     public void loop() {
         ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
 
-        if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10)) {
+        if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+            if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                sampleColor = "blue";
+            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                sampleColor = "red";
+            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
+                sampleColor = "yellow";
+            }
+        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10) && (sensorDistance.getDistance(DistanceUnit.CM) >2)) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue-detected";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
                 sampleColor = "red-detected";
-            } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10) && (sensorDistance.getDistance(DistanceUnit.CM) > 2)) {
+            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
                 sampleColor = "yellow-detected";
-            } else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-                if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
-                    sampleColor = "blue";
-                } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
-                    sampleColor = "red";
-                } else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-                    sampleColor = "yellow";
+            }
+                else {
+                    sampleColor = "none";
                 }
-            } else {
-                sampleColor = "none";
             }
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
@@ -81,7 +83,7 @@ public class NewArmClawTest extends OpMode {
             } else if (sampleColor == "yellow") {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
             } else {
-                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
             }
 
             ////////////////match time leds///////////////////////////
@@ -114,6 +116,5 @@ public class NewArmClawTest extends OpMode {
             telemetry.addData("Sample color detected", sampleColor);
         }
     }
-}
 
 

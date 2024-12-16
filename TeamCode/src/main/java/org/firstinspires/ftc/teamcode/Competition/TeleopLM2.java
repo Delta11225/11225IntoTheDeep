@@ -317,7 +317,7 @@ public class TeleopLM2 extends LinearOpMode {
         } else if ((matchtime.seconds()>120)) {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
 
                                 //////////////GAMEPAD 1//////////////
