@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
@@ -70,13 +71,11 @@ public class AutoObservationSide extends LinearOpMode {
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
-
                 .addDisplacementMarker(()->{
                     robot.claw.setPosition(ClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-
-                .strafeLeft(10)
+                .strafeLeft(5)
                 .build();
 
 
@@ -84,7 +83,9 @@ public class AutoObservationSide extends LinearOpMode {
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
                 // robot approaches preloaded specimen in observation zone
                 .lineToLinearHeading(new Pose2d(-41, 61, Math.toRadians(180)))
-                .strafeRight(6)
+                .strafeRight(6,
+                    SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                    SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
 
@@ -168,6 +169,6 @@ public class AutoObservationSide extends LinearOpMode {
             telemetry.addData("slide target", robot.linearSlide.getTargetPosition());
             telemetry.update();
         }
-        sleep(1000);
+        sleep(100);
     }
 }
