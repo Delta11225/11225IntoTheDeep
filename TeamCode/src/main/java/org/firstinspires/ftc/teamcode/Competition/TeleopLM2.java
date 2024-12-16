@@ -338,6 +338,7 @@ public class TeleopLM2 extends LinearOpMode {
             ascentArm.setTargetPosition(armHang);
             //close specimen claw for safe hanging
             SpecimenClaw.setPosition(ClawClosed);
+            ArmClaw.setPosition(ArmClawClosed);
         }
 
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
