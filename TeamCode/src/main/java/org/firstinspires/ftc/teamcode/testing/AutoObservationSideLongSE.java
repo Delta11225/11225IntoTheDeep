@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.lessons;
+package org.firstinspires.ftc.teamcode.testing;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 @Autonomous(preselectTeleOp = "TeleOpLM1")
-public class RRTrajTest1 extends LinearOpMode {
+public class AutoObservationSideLongSE extends LinearOpMode {
 
     HardwareITD robot;
 
@@ -65,10 +64,10 @@ public class RRTrajTest1 extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
                 //approach submersible
-                .lineToConstantHeading(new Vector2d(0, 28))
+                .lineToConstantHeading(new Vector2d(0, 29))
                 //start lifting slide when robot is at (-12,64) which is close to start pose
                 .addSpatialMarker(new Vector2d(-12, 64), () -> {
-                    robot.linearSlide.setTargetPosition(2250);
+                    robot.linearSlide.setTargetPosition(highChamberHeight);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
@@ -76,49 +75,45 @@ public class RRTrajTest1 extends LinearOpMode {
                     robot.claw.setPosition(ClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-                .strafeLeft(5)
+                .strafeLeft(5) // (0,33)
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(new Pose2d(0,33, Math.toRadians(0)),Math.toRadians(100))
 
-                .splineToSplineHeading(
-                        new Pose2d(-16,46, Math.toRadians(90)), Math.toRadians(180),
-                        SampleMecanumDrive.getVelocityConstraint(46, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .splineToSplineHeading(
-                        new Pose2d(-36,28, Math.toRadians(180)), Math.toRadians(260),
-                        SampleMecanumDrive.getVelocityConstraint(46, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj1.end())
+                .splineToConstantHeading(
+                        new Vector2d(-24,36), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-36.5,16), Math.toRadians(270),
+                        new Vector2d(-36,12), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToConstantHeading(
+                        new Vector2d(-42,0), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(42, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-41,8), Math.toRadians(180),
-                        SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Vector2d(-42,52), Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-48,16), Math.toRadians(90),
-                        SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Vector2d(-42,0), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-50,51), Math.toRadians(90),
-                        SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Vector2d(-51,12), Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(55, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-41,40), Math.toRadians(0),
-                        SampleMecanumDrive.getVelocityConstraint(42, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .splineToConstantHeading(
-                        new Vector2d(-39.5,63), Math.toRadians(90),
-                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Vector2d(-51,57), Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 
@@ -132,12 +127,15 @@ public class RRTrajTest1 extends LinearOpMode {
 
 
         waitForStart();
+
         drive.followTrajectorySequence(traj1);
         deploySpecimen();
-        drive.followTrajectory(traj2);
+        drive.followTrajectorySequence(traj2);
+
 
 
     }
+
     public void deploySpecimen() {
         //open claw
         robot.claw.setPosition(ClawOpen);
@@ -155,5 +153,23 @@ public class RRTrajTest1 extends LinearOpMode {
             telemetry.addData("touch state",robot.touch.isPressed());
             telemetry.update();
         }
+    }
+
+    public void retrieveObservationSpecimen(){
+        //grab specimen hanging on wall
+        robot.claw.setPosition(ClawClosed);
+        robot.intakeArm.setPosition(IntakeArmUp);
+        sleep(500);
+        //lift linear slide up to clear wall with specimen
+        robot.linearSlide.setTargetPosition(700);
+        robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.linearSlide.setPower(1);
+        while (robot.linearSlide.isBusy()) {
+            telemetry.addData("slide Power", robot.linearSlide.getPower());
+            telemetry.addData("slide encoder", robot.linearSlide.getCurrentPosition());
+            telemetry.addData("slide target", robot.linearSlide.getTargetPosition());
+            telemetry.update();
+        }
+        sleep(100);
     }
 }
