@@ -30,7 +30,8 @@ public class NewArmClawTest extends OpMode {
     double ArmClawClosed = 0.5;
 
     //claw arm varis
-    double IntakeArmHold = .575;
+    double IntakeArmDown = .5;
+    double IntakeArmHold = .55;
     double IntakeArmUp = .84;
 
     //String Variables
@@ -83,11 +84,17 @@ public class NewArmClawTest extends OpMode {
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
             if (sampleColor == "blue") {
-                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
             } else if (sampleColor == "red") {
-                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
             } else if (sampleColor == "yellow") {
-                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+            } else if (sampleColor == "blue-detected") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+            } else if (sampleColor == "red-detected") {
+                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+            } else if (sampleColor == "yellow-detected") {
+                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
             } else {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
             }
@@ -103,11 +110,6 @@ public class NewArmClawTest extends OpMode {
             }
 
 //////////////////////////////New Arm Claw//////////////////////////////////////
-            if ((sampleColor == "blue") || (sampleColor == "yellow")) {
-                ArmClaw.setPosition(ArmClawClosed);
-            } else {
-                ArmClaw.setPosition(ArmClawOpen);
-            }
             if(gamepad1.y) {
                 IntakeArm.setPosition(IntakeArmUp);
             }
@@ -115,12 +117,13 @@ public class NewArmClawTest extends OpMode {
                 IntakeArm.setPosition(IntakeArmHold);}
 
             if(gamepad1.a) {
-                    IntakeArm.setPosition(IntakeArmHold);
+                    IntakeArm.setPosition(IntakeArmDown);
             }
 
-            if (gamepad1.left_trigger < -0.5) {
+            if (gamepad1.left_trigger >= 0.5) {
                 ArmClaw.setPosition(ArmClawOpen);
-            } else if (gamepad1.right_trigger >= 0.5) {
+            }
+            if (gamepad1.right_trigger >= 0.5) {
                 ArmClaw.setPosition(ArmClawClosed);
             }
 

@@ -37,6 +37,8 @@ public class HardwareITD {
     public DistanceSensor sensorDistance;
     public TouchSensor touch;
     RevBlinkinLedDriver lights;
+    public Servo ArmClaw;
+    public Servo SpecimenClaw;
 
     // State used for updating telemetry
     private Orientation angles;
@@ -73,6 +75,8 @@ public class HardwareITD {
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //claw distance?
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");
         touch = hardwareMap.get(TouchSensor.class, "touch");
+        ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
+        SpecimenClaw = hardwareMap.get(Servo.class, "claw");
 
         //LED sequence
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");

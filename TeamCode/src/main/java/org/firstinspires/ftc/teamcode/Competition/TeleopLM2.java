@@ -82,7 +82,7 @@ public class TeleopLM2 extends LinearOpMode {
 
     //linear slide height variables
     int linearSlideTarget = 0; //setting intitial target to 0
-    int highBucketHeight = 3600;
+    int highBucketHeight = 3450;
     int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
     int lowChamberHeight = 538;
@@ -96,7 +96,8 @@ public class TeleopLM2 extends LinearOpMode {
 
     //intake arm variables
     double IntakeArmUp = .84;
-    double IntakeArmHold = .575;
+    double IntakeArmHoldEmpty = .55;
+    double IntakeArmHoldFull = .65;
     double IntakeArmDown = .5;
 
     // Arm Claw Variables
@@ -112,6 +113,8 @@ public class TeleopLM2 extends LinearOpMode {
     boolean slideDown = true;
     boolean slideGoingDown = false;
     boolean SpecimenclawIsOpen = true;
+    boolean ClawLoaded = false;
+
 
     //String Variables
     String sampleColor = "none";
@@ -291,31 +294,48 @@ public class TeleopLM2 extends LinearOpMode {
     public void peripheralmove() {
 ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
 
-        if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red()) && (sensorDistance.getDistance(DistanceUnit.CM) <= 2)) {
-            sampleColor = "blue";
+        if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+            if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                sampleColor = "blue";
+            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                sampleColor = "red";
+            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
+                sampleColor = "yellow";
+            }
+        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10) &&
+                (sensorDistance.getDistance(DistanceUnit.CM) >2) && ArmUp == false) {
+            if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
+                sampleColor = "blue-detected";
+            } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
+                sampleColor = "red-detected";
+            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
+                sampleColor = "yellow-detected";
+            }
+            else {
+                sampleColor = "none";
+            }
         }
-        else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green()) && sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-            sampleColor = "red";
-        }
-        else if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
-            sampleColor = "yellow";
+//////////////////////////////SAMPLE DETECTION COMMUNICATION//////////////////////////////////////
+        if (sampleColor == "blue" || sampleColor == "red" || sampleColor == "yellow") {
+            ClawLoaded = true;
         }
         else {
-            sampleColor = "none";
+            ClawLoaded = false;
         }
-
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
-        if ((matchtime.seconds()>100)&&matchtime.seconds()<120) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
-        } else if (sampleColor == "blue") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+        if (sampleColor == "blue") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
         } else if (sampleColor == "red") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         } else if (sampleColor == "yellow") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+        } else if (sampleColor == "blue-detected") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+        } else if (sampleColor == "red-detected") {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+        } else if (sampleColor == "yellow-detected") {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
-        } else if ((matchtime.seconds()>120)) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         } else {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
@@ -331,6 +351,7 @@ public class TeleopLM2 extends LinearOpMode {
         if (gamepad1.dpad_left & gamepad1.b) {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHook);
+            ArmClaw.setPosition(ArmClawClosed);
         }
 
         if (gamepad1.dpad_up & gamepad1.y) {
@@ -411,9 +432,14 @@ public class TeleopLM2 extends LinearOpMode {
 
             // brings arm to hold position
         } else if (gamepad2.dpad_left && slideDown == true) {
-            intakeArm.setPosition(IntakeArmHold);
-            ArmUp = false;
-
+            if (ClawLoaded == true) {
+                intakeArm.setPosition(IntakeArmHoldFull);
+                ArmUp = false;
+            }
+            else {
+                intakeArm.setPosition(IntakeArmHoldEmpty);
+                ArmUp = false;
+            }
             // brings arm to score/up position
         } else if (gamepad2.dpad_up) {
             intakeArm.setPosition(IntakeArmUp);
