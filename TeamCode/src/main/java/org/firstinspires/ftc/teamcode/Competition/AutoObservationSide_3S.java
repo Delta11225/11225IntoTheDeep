@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Competition;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 @Autonomous(preselectTeleOp = "TeleOpLM2")
 public class AutoObservationSide_3S extends LinearOpMode {
 
+    RevBlinkinLedDriver lights;
     HardwareITD robot;
 
     double IntakeArmUp = .86;
@@ -47,8 +49,8 @@ public class AutoObservationSide_3S extends LinearOpMode {
         robot.linearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.linearSlide.setPower(0);
 
-
-
+        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
@@ -185,6 +187,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
 
 
         waitForStart();
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         drive.followTrajectorySequence(traj1);
         deploySpecimen();
         drive.followTrajectory(traj2);

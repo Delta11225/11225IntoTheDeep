@@ -18,6 +18,7 @@ public class NewArmClawTest extends OpMode {
     //LED lights
     RevBlinkinLedDriver lights;
 
+    Servo IntakeArm;
     Servo ArmClaw;
     ColorSensor sensorColor; //color sensor on intake arm
     DistanceSensor sensorDistance; //distance sensor on intake arm
@@ -25,8 +26,12 @@ public class NewArmClawTest extends OpMode {
     private ElapsedTime matchtime = new ElapsedTime();
 
     // Arm Claw Variables
-    double ArmClawOpen = 0.3;
+    double ArmClawOpen = 0;
     double ArmClawClosed = 0.5;
+
+    //claw arm varis
+    double IntakeArmHold = .575;
+    double IntakeArmUp = .84;
 
     //String Variables
     String sampleColor = "none";
@@ -38,6 +43,7 @@ public class NewArmClawTest extends OpMode {
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//armClaw color sensor
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //armClaw distance sensor
         ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
+        IntakeArm = hardwareMap.get(Servo.class, "intake_arm");
         ArmClaw.setPosition(ArmClawOpen);
 
         /////////////// initialize LED lights//////////////////////
@@ -102,10 +108,19 @@ public class NewArmClawTest extends OpMode {
             } else {
                 ArmClaw.setPosition(ArmClawOpen);
             }
+            if(gamepad1.y) {
+                IntakeArm.setPosition(IntakeArmUp);
+            }
+            if(gamepad1.b) {
+                IntakeArm.setPosition(IntakeArmHold);}
 
-            if (gamepad1.right_stick_x < -0.5) {
+            if(gamepad1.a) {
+                    IntakeArm.setPosition(IntakeArmHold);
+            }
+
+            if (gamepad1.left_trigger < -0.5) {
                 ArmClaw.setPosition(ArmClawOpen);
-            } else if (gamepad1.right_stick_x >= 0.5) {
+            } else if (gamepad1.right_trigger >= 0.5) {
                 ArmClaw.setPosition(ArmClawClosed);
             }
 
