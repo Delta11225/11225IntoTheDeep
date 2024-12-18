@@ -101,7 +101,6 @@ public class NewArmClawTest extends OpMode {
 
             ////////////////match time leds///////////////////////////
 
-
             if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 

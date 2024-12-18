@@ -339,8 +339,17 @@ public class TeleopLM2 extends LinearOpMode {
         } else {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
+        ////////////////MATCH TIMER LEDs///////////////////////////
 
-                                //////////////GAMEPAD 1//////////////
+        if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+
+        } else if ((matchtime.seconds() > 120)) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
+        }
+
+
+        //////////////GAMEPAD 1//////////////
 
 /////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
         if (gamepad1.dpad_down & gamepad1.a) {
@@ -363,7 +372,7 @@ public class TeleopLM2 extends LinearOpMode {
         }
 
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
-            gamepad1.rumble(500);
+            gamepad2.rumble(500);
 
                                 //////////////GAMEPAD 2//////////////
 
