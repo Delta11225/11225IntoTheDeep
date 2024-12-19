@@ -196,7 +196,7 @@ public class TeleopLM2 extends LinearOpMode {
     /////////////// initialize LED lights//////////////////////
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
         //LED lights light up to signal that init phase complete
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
+
 
 /////////////////////////////////////// End init phase/////////////////////////////////////////////////////////////
 
@@ -373,6 +373,7 @@ public class TeleopLM2 extends LinearOpMode {
 
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
             gamepad2.rumble(500);
+
 
                                 //////////////GAMEPAD 2//////////////
 
