@@ -137,7 +137,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 
         //grabs second sample
         Trajectory traj5 = drive.trajectoryBuilder(traj4.end(),Math.toRadians(270))
-                .lineToLinearHeading(new Pose2d(61,47, Math.toRadians(270)),
+                .lineToLinearHeading(new Pose2d(62.5,47, Math.toRadians(270)),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -220,16 +220,18 @@ public class AutoNetSide_3S extends LinearOpMode {
     public void grabsample(){
 
             //lower arm
+            robot.intakeArm.setPosition(IntakeArmHold);
+            sleep(70);
             robot.intakeArm.setPosition(IntakeArmDown);
-            sleep(700);
+            sleep(800);
 
-                //close claw on 1st yellow sample
+            //close claw on 1st yellow sample
             robot.ArmClaw.setPosition(ArmClawClosed);
             sleep(500);
 
                 //arm up
             robot.intakeArm.setPosition(IntakeArmUp);
-            sleep(700);
+            sleep(500);
     }
 
     public void deploySpecimen() {

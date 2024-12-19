@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -96,12 +97,13 @@ public class TeleopLM2 extends LinearOpMode {
 
     //intake arm variables
     double IntakeArmUp = .84;
-    double IntakeArmHoldEmpty = .55;
+    double IntakeArmHang = .90;
+    double IntakeArmHoldEmpty = .575;
     double IntakeArmHoldFull = .65;
-    double IntakeArmDown = .5;
+    double IntakeArmDown = .51;
 
     // Arm Claw Variables
-    double ArmClawOpen = 0;
+    double ArmClawOpen = 0.1;
     double ArmClawClosed = 0.5;
 
     //specimen claw variables
@@ -114,6 +116,7 @@ public class TeleopLM2 extends LinearOpMode {
     boolean slideGoingDown = false;
     boolean SpecimenclawIsOpen = true;
     boolean ClawLoaded = false;
+    boolean ArmInHold = false;
 
 
     //String Variables
@@ -219,7 +222,7 @@ public class TeleopLM2 extends LinearOpMode {
                 peripheralmove();
 
                 currentAngle = angles.firstAngle + 360;
-                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
+//                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
             }
 
             while (angles.firstAngle >= 0 && opModeIsActive()) {
@@ -229,7 +232,7 @@ public class TeleopLM2 extends LinearOpMode {
                 peripheralmove();
 
                 currentAngle = angles.firstAngle;
-                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
+//                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
             }
 
             telemetry.addLine("null angle");
@@ -240,8 +243,8 @@ public class TeleopLM2 extends LinearOpMode {
     public void move(){
         double theta = Math.toRadians(currentAngle);
 
-        telemetry.addData("CurrentAngle", currentAngle);
-        telemetry.addData("Theta", theta);
+//        telemetry.addData("CurrentAngle", currentAngle);
+//        telemetry.addData("Theta", theta);
 
         //update to change starting orientation if needed
         forward = -gamepad1.left_stick_y; //left joystick up
@@ -254,11 +257,11 @@ public class TeleopLM2 extends LinearOpMode {
         forward = temp;
         right = side;
 
-        telemetry.addData("right: ", right);
-        telemetry.addData("forward: ", forward);
-        telemetry.addData("temp: ", temp);
-        telemetry.addData("side: ", side);
-        telemetry.addData("clockwise: ", clockwise);
+//        telemetry.addData("right: ", right);
+//        telemetry.addData("forward: ", forward);
+//        telemetry.addData("temp: ", temp);
+//        telemetry.addData("side: ", side);
+//        telemetry.addData("clockwise: ", clockwise);
 
 
         denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
@@ -267,11 +270,6 @@ public class TeleopLM2 extends LinearOpMode {
         rearLeftV = (forward - right + clockwise) / denominator;
         rearRightV = (forward + right - clockwise) / denominator;
         frontRightV = (forward - right - clockwise) / denominator;
-
-        telemetry.addData("front left: ", frontLeft);
-        telemetry.addData("rear left: ", rearLeft);
-        telemetry.addData("rear right: ", rearRight);
-        telemetry.addData("front right: ", frontRight);
 
         //Handle speed controls
         if (gamepad1.left_bumper) {
@@ -315,13 +313,7 @@ public class TeleopLM2 extends LinearOpMode {
                 sampleColor = "none";
             }
         }
-//////////////////////////////SAMPLE DETECTION COMMUNICATION//////////////////////////////////////
-        if (sampleColor == "blue" || sampleColor == "red" || sampleColor == "yellow") {
-            ClawLoaded = true;
-        }
-        else {
-            ClawLoaded = false;
-        }
+
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
         if (sampleColor == "blue") {
@@ -361,6 +353,7 @@ public class TeleopLM2 extends LinearOpMode {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHook);
             ArmClaw.setPosition(ArmClawClosed);
+            SpecimenClaw.setPosition(ClawClosed);
         }
 
         if (gamepad1.dpad_up & gamepad1.y) {
@@ -369,6 +362,7 @@ public class TeleopLM2 extends LinearOpMode {
             //close specimen claw for safe hanging
             SpecimenClaw.setPosition(ClawClosed);
             ArmClaw.setPosition(ArmClawClosed);
+            intakeArm.setPosition(IntakeArmHang);
         }
 
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
@@ -380,9 +374,11 @@ public class TeleopLM2 extends LinearOpMode {
 //////////////////////////MANUAL ARM CLAW CONTROLS///////////////////////////////////////////
         if (gamepad2.right_bumper) {
         ArmClaw.setPosition(ArmClawClosed);
+        ClawLoaded = true;
         }
         else if (gamepad2.left_bumper) {
         ArmClaw.setPosition(ArmClawOpen);
+        ClawLoaded = false;
         }
 
 //////////////////////////////////////////linear slide///////////////////////
@@ -406,8 +402,15 @@ public class TeleopLM2 extends LinearOpMode {
             slideGoingDown = true;
             linearSlideTarget = 0;
             linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(0.8);
+            linearSlide.setPower(1);
             SpecimenClaw.setPosition(ClawOpen);
+        }
+        if (touchLinSlide.isPressed() == false && linearSlideTarget <= 0 && slideGoingDown == true) {
+            slideGoingDown = true;
+            linearSlideTarget = -5000;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(0.9);
+
         }
         //slide has reached ground position
         if (touchLinSlide.isPressed() == true && slideGoingDown == true) {
@@ -434,26 +437,43 @@ public class TeleopLM2 extends LinearOpMode {
         }
 
 ////////////////////////////////////////intake arm///////////////////////
-
-        // brings arm to down/collect position
-        if (gamepad2.dpad_down && slideDown == true) {
-            intakeArm.setPosition(IntakeArmDown);
-            ArmUp = false;
-
-            // brings arm to hold position
-        } else if (gamepad2.dpad_left && slideDown == true) {
-            if (ClawLoaded == true) {
-                intakeArm.setPosition(IntakeArmHoldFull);
-                ArmUp = false;
-            }
-            else {
-                intakeArm.setPosition(IntakeArmHoldEmpty);
-                ArmUp = false;
-            }
-            // brings arm to score/up position
-        } else if (gamepad2.dpad_up) {
+        // brings arm to score/up position
+        if (gamepad2.dpad_up) {
             intakeArm.setPosition(IntakeArmUp);
             ArmUp = true;
+            ArmInHold = false;
+        }
+        // brings arm to down/collect position
+        if (gamepad2.dpad_down && slideDown == true) {
+            if (ArmUp == true){
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            if (ArmInHold == true) {
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            intakeArm.setPosition(IntakeArmDown);
+            ArmUp = false;
+            ArmInHold = false;
+        }
+        // brings arm to hold position
+        if (gamepad2.dpad_left && slideDown == true) {
+            if (ArmUp == true){
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            ArmInHold = true;
+            ArmUp = false;
+        }
+
+        if (ArmInHold == true && ClawLoaded == true) {
+            intakeArm.setPosition(IntakeArmHoldFull);
+            ArmUp = false;
+        }
+        if (ArmInHold == true && ClawLoaded == false) {
+            intakeArm.setPosition(IntakeArmHoldEmpty);
+            ArmUp = false;
         }
 
 ////////////////////////////////////////manual speciment claw controls///////////////////////
@@ -488,7 +508,13 @@ public class TeleopLM2 extends LinearOpMode {
         telemetry.addData("Color vals, g", sensorColorSpecimenClaw.green());
         telemetry.addData("Color vals, b", sensorColorSpecimenClaw.blue());
         telemetry.addData("Sample Color",sampleColor);
+    //////////////////IMU Reset///////////////////////////
+    if(gamepad1.right_trigger > 0.6 && gamepad1.left_trigger > 0.6) {
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
+    telemetry.addData("current angle", currentAngle);
+    }
+
 
 /////end of peripheral move////////
 
@@ -509,49 +535,49 @@ public class TeleopLM2 extends LinearOpMode {
         }
         });
 
-        telemetry.addLine()
-                .addData("status", new Func<String>() {
-                    @Override public String value() {
-                        return imu.getSystemStatus().toShortString();
-                    }
-                })
-                .addData("calib", new Func<String>() {
-                    @Override public String value() {
-                        return imu.getCalibrationStatus().toString();
-                    }
-                });
-
-        telemetry.addLine()
-                .addData("heading", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.firstAngle);
-                    }
-                })
-                .addData("roll", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.secondAngle);
-                    }
-                })
-                .addData("pitch", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.thirdAngle);
-                    }
-                });
-
-        telemetry.addLine()
-                .addData("grvty", new Func<String>() {
-                    @Override public String value() {
-                        return gravity.toString();
-                    }
-                })
-                .addData("mag", new Func<String>() {
-                    @Override public String value() {
-                        return String.format(Locale.getDefault(), "%.3f",
-                                Math.sqrt(gravity.xAccel*gravity.xAccel
-                                        + gravity.yAccel*gravity.yAccel
-                                        + gravity.zAccel*gravity.zAccel));
-                    }
-                });
+//        telemetry.addLine()
+//                .addData("status", new Func<String>() {
+//                    @Override public String value() {
+//                        return imu.getSystemStatus().toShortString();
+//                    }
+//                })
+//                .addData("calib", new Func<String>() {
+//                    @Override public String value() {
+//                        return imu.getCalibrationStatus().toString();
+//                    }
+//                });
+//
+//        telemetry.addLine()
+//                .addData("heading", new Func<String>() {
+//                    @Override public String value() {
+//                        return formatAngle(angles.angleUnit, angles.firstAngle);
+//                    }
+//                })
+//                .addData("roll", new Func<String>() {
+//                    @Override public String value() {
+//                        return formatAngle(angles.angleUnit, angles.secondAngle);
+//                    }
+//                })
+//                .addData("pitch", new Func<String>() {
+//                    @Override public String value() {
+//                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+//                    }
+//                });
+//
+//        telemetry.addLine()
+//                .addData("grvty", new Func<String>() {
+//                    @Override public String value() {
+//                        return gravity.toString();
+//                    }
+//                })
+//                .addData("mag", new Func<String>() {
+//                    @Override public String value() {
+//                        return String.format(Locale.getDefault(), "%.3f",
+//                                Math.sqrt(gravity.xAccel*gravity.xAccel
+//                                        + gravity.yAccel*gravity.yAccel
+//                                        + gravity.zAccel*gravity.zAccel));
+//                    }
+//                });
 
         // telemetry.addData("currentAngle", "%.1f", currentAngle);
     }
