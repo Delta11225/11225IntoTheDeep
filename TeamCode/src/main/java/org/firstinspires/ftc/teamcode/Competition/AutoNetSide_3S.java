@@ -95,7 +95,7 @@ public class AutoNetSide_3S extends LinearOpMode {
         //picks up first yellow sample with claw arm
         Trajectory traj2 = drive.trajectoryBuilder(new Pose2d(57,54, Math.toRadians(45)),Math.toRadians(270))
             .splineToLinearHeading(new Pose2d(51.5,47, Math.toRadians(270)), Math.toRadians(180),
-                 SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                 SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                  SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
             )
 
@@ -104,7 +104,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end(), Math.toRadians(90))
                 .splineToLinearHeading(new Pose2d(57,54, Math.toRadians(45)), Math.toRadians(45),
-                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 
@@ -136,9 +136,9 @@ public class AutoNetSide_3S extends LinearOpMode {
             .build();
 
         //grabs second sample
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end(),Math.toRadians(270))
-                .lineToLinearHeading(new Pose2d(62.5,47, Math.toRadians(270)),
-                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
+                .lineToLinearHeading(new Pose2d(62,47, Math.toRadians(270)),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 
@@ -147,7 +147,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 
         Trajectory traj6 = drive.trajectoryBuilder(traj5.end(),Math.toRadians(180))
                 .splineToLinearHeading(new Pose2d(53, 52, Math.toRadians(45)),Math.toRadians(0),
-                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 

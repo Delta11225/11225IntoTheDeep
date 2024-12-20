@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 //@Disabled
@@ -16,7 +17,8 @@ public class AscentArmReset extends OpMode {
     double maxHeightLS;//22104
     double minHeightLS;
     TouchSensor touch;
-
+    public Servo ArmClaw;
+    double ArmClawClosed = 0.5;
 
     @Override
     public void init() {
@@ -25,6 +27,9 @@ public class AscentArmReset extends OpMode {
         ascentArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //ascentArm.setDirection(DcMotor.Direction.REVERSE);
         ascentArm.setZeroPowerBehavior(BRAKE);
+        ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
+
+        ArmClaw.setPosition(ArmClawClosed);
     }
 
     @Override

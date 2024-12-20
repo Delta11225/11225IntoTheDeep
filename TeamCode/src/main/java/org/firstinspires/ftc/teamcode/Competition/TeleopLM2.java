@@ -87,7 +87,7 @@ public class TeleopLM2 extends LinearOpMode {
     int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
     int lowChamberHeight = 538;
-    int highChamberReleaseHeight = 1250;
+    int highChamberReleaseHeight = 1270;
     int autoGrabLSHeight = 500;
 
     //ascent arm encoder locations
@@ -117,6 +117,7 @@ public class TeleopLM2 extends LinearOpMode {
     boolean SpecimenclawIsOpen = true;
     boolean ClawLoaded = false;
     boolean ArmInHold = false;
+    boolean AscentArmDown = true;
 
 
     //String Variables
@@ -332,8 +333,10 @@ public class TeleopLM2 extends LinearOpMode {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
         ////////////////MATCH TIMER LEDs///////////////////////////
+        if ((matchtime.seconds() > 85) && (matchtime.seconds() < 90)) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
 
-        if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
+        } else if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 
         } else if ((matchtime.seconds() > 120)) {
@@ -347,6 +350,7 @@ public class TeleopLM2 extends LinearOpMode {
         if (gamepad1.dpad_down & gamepad1.a) {
             ascentArm.setTargetPosition(store);
             ascentArm.setPower(0.5);
+            AscentArmDown = true;
         }
 
         if (gamepad1.dpad_left & gamepad1.b) {
@@ -354,6 +358,7 @@ public class TeleopLM2 extends LinearOpMode {
             ascentArm.setTargetPosition(armHook);
             ArmClaw.setPosition(ArmClawClosed);
             SpecimenClaw.setPosition(ClawClosed);
+            AscentArmDown = false;
         }
 
         if (gamepad1.dpad_up & gamepad1.y) {
@@ -363,6 +368,7 @@ public class TeleopLM2 extends LinearOpMode {
             SpecimenClaw.setPosition(ClawClosed);
             ArmClaw.setPosition(ArmClawClosed);
             intakeArm.setPosition(IntakeArmHang);
+            AscentArmDown = false;
         }
 
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
@@ -404,6 +410,8 @@ public class TeleopLM2 extends LinearOpMode {
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(1);
             SpecimenClaw.setPosition(ClawOpen);
+            SpecimenclawIsOpen = true;
+
         }
         if (touchLinSlide.isPressed() == false && linearSlideTarget <= 0 && slideGoingDown == true) {
             slideGoingDown = true;
@@ -490,7 +498,7 @@ public class TeleopLM2 extends LinearOpMode {
 
 ////////////////////////////////////////SPECIMEN CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 4 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1) {
+        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 4 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
             gamepad2.rumble(500);
             SpecimenClaw.setPosition(ClawClosed);//Claw Closed
             clawLastClosed.reset();
@@ -502,7 +510,7 @@ public class TeleopLM2 extends LinearOpMode {
             linearSlide.setTargetPosition(linearSlideTarget);
             linearSlide.setPower(0.6);
         }
-        telemetry.addData("claw open", SpecimenclawIsOpen);
+        telemetry.addData(" specimen claw open", SpecimenclawIsOpen);
         telemetry.addData("Distance(claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
         telemetry.addData("Color vals, r", sensorColorSpecimenClaw.red());
         telemetry.addData("Color vals, g", sensorColorSpecimenClaw.green());
