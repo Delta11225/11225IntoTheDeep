@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 // @Disabled
 @Autonomous
+@Disabled
 public class RRMockAutoChallenge extends LinearOpMode {
 
 

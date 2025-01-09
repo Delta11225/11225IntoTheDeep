@@ -59,7 +59,7 @@ public class AutoNetSide_3S extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         //Set starting Pose for robot (coordinate and heading)
-        Pose2d startPose = new Pose2d(34, 66.5, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(35.375, 66.5, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
 
@@ -99,29 +99,27 @@ public class AutoNetSide_3S extends LinearOpMode {
                  SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
             )
 
-
             .build();
-
+        //approaching basket
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end(), Math.toRadians(90))
                 .splineToLinearHeading(new Pose2d(57,54, Math.toRadians(45)), Math.toRadians(45),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-
-                .build();
-
-        //goes to high bucket with 1st yellow sample
-        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
                 //raises linear slide
-                .addDisplacementMarker(() ->{
+                .addSpatialMarker(new Vector2d(52,48),() ->{
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.ArmClaw.setPosition(ArmClawClosed);
                     robot.linearSlide.setTargetPosition(highBucketHeight);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
-            .forward(0.00001)
-            .waitSeconds(1.3)
+                .build();
+
+        //goes to high bucket with 1st yellow sample
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
+
+
             .forward(4.5)
             .waitSeconds(0.1)
                 //drops 1st yellow sample into high basket
@@ -137,7 +135,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 
         //grabs second sample
         Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToLinearHeading(new Pose2d(62,47, Math.toRadians(270)),
+                .lineToLinearHeading(new Pose2d(61.5,47, Math.toRadians(270)),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -146,7 +144,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 
 
         Trajectory traj6 = drive.trajectoryBuilder(traj5.end(),Math.toRadians(180))
-                .splineToLinearHeading(new Pose2d(53, 52, Math.toRadians(45)),Math.toRadians(0),
+                .splineToLinearHeading(new Pose2d(52, 53, Math.toRadians(45)),Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -169,7 +167,7 @@ public class AutoNetSide_3S extends LinearOpMode {
                 })
                 .forward(0.00001)
                 .waitSeconds(1.3)
-                .forward(6)
+                .forward(7)
                 .waitSeconds(0.3)
                 //drops 1st yellow sample into high basket
                 .addDisplacementMarker(()->{
@@ -181,9 +179,11 @@ public class AutoNetSide_3S extends LinearOpMode {
                 .back(6)
 
             .build();
-
+// adjusts heading for teleop
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
-                .lineToLinearHeading(new Pose2d(48, 48, Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(48, 48, Math.toRadians(270)),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
 
                 .build();
 
@@ -218,6 +218,8 @@ public class AutoNetSide_3S extends LinearOpMode {
     }
 
     public void grabsample(){
+
+            robot.ArmClaw.setPosition(ArmClawOpen);
 
             //lower arm
             robot.intakeArm.setPosition(IntakeArmHold);
