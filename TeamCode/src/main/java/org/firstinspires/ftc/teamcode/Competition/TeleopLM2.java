@@ -100,7 +100,7 @@ public class TeleopLM2 extends LinearOpMode {
     double IntakeArmHang = .90;
     double IntakeArmHoldEmpty = .575;
     double IntakeArmHoldFull = .65;
-    double IntakeArmDown = .51;
+    double IntakeArmDown = .53;
 
     // Arm Claw Variables
     double ArmClawOpen = 0.1;
@@ -199,6 +199,7 @@ public class TeleopLM2 extends LinearOpMode {
 
     /////////////// initialize LED lights//////////////////////
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         //LED lights light up to signal that init phase complete
 
 
@@ -293,7 +294,7 @@ public class TeleopLM2 extends LinearOpMode {
     public void peripheralmove() {
 ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
 
-        if (sensorDistance.getDistance(DistanceUnit.CM) <= 2) {
+        if (sensorDistance.getDistance(DistanceUnit.CM) <= 3 && ClawLoaded==true) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
@@ -301,8 +302,8 @@ public class TeleopLM2 extends LinearOpMode {
             } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
                 sampleColor = "yellow";
             }
-        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 10) &&
-                (sensorDistance.getDistance(DistanceUnit.CM) >2) && ArmUp == false) {
+        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 8) &&
+                (sensorDistance.getDistance(DistanceUnit.CM) > 3) && ArmUp == false) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue-detected";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
@@ -310,10 +311,11 @@ public class TeleopLM2 extends LinearOpMode {
             } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
                 sampleColor = "yellow-detected";
             }
-            else {
+        }
+        else {
                 sampleColor = "none";
             }
-        }
+
 
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
@@ -511,10 +513,12 @@ public class TeleopLM2 extends LinearOpMode {
             linearSlide.setPower(0.6);
         }
         telemetry.addData(" specimen claw open", SpecimenclawIsOpen);
-        telemetry.addData("Distance(claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
-        telemetry.addData("Color vals, r", sensorColorSpecimenClaw.red());
-        telemetry.addData("Color vals, g", sensorColorSpecimenClaw.green());
-        telemetry.addData("Color vals, b", sensorColorSpecimenClaw.blue());
+        telemetry.addData("Distance(specimen claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
+        telemetry.addData("Sample claw closed", ClawLoaded);
+        telemetry.addData("Distance(sample claw)", sensorDistance.getDistance(DistanceUnit.CM));
+        telemetry.addData("Sample Claw Color vals, r", sensorColor.red());
+        telemetry.addData("Sample Claw Color vals, g", sensorColor.green());
+        telemetry.addData("Sample Claw Color vals, b", sensorColor.blue());
         telemetry.addData("Sample Color",sampleColor);
     //////////////////IMU Reset///////////////////////////
     if(gamepad1.right_trigger > 0.6 && gamepad1.left_trigger > 0.6) {

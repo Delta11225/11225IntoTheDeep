@@ -26,7 +26,6 @@ public class AutoNetSide_3S extends LinearOpMode {
 
     double ArmClawOpen = 0;
     double ArmClawClosed = 0.5;
-    double ArmClawRelease = 0.2;
 
     double ClawOpen = 0.4;
     double ClawClosed = 0.8;
@@ -83,7 +82,7 @@ public class AutoNetSide_3S extends LinearOpMode {
             .waitSeconds(0.1)
                 //drops preloaded sample into high basket
                 .addDisplacementMarker(()->{
-                    robot.ArmClaw.setPosition(ArmClawRelease);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
             .forward(0.0001)
@@ -124,7 +123,7 @@ public class AutoNetSide_3S extends LinearOpMode {
             .waitSeconds(0.1)
                 //drops 1st yellow sample into high basket
                 .addDisplacementMarker(()->{
-                    robot.ArmClaw.setPosition(ArmClawRelease);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
             .forward(0.0001)
@@ -171,7 +170,7 @@ public class AutoNetSide_3S extends LinearOpMode {
                 .waitSeconds(0.3)
                 //drops 1st yellow sample into high basket
                 .addDisplacementMarker(()->{
-                    robot.ArmClaw.setPosition(ArmClawRelease);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
                 .forward(0.0001)
@@ -182,7 +181,7 @@ public class AutoNetSide_3S extends LinearOpMode {
 // adjusts heading for teleop
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
                 .lineToLinearHeading(new Pose2d(48, 48, Math.toRadians(270)),
-                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
 
                 .build();
