@@ -259,13 +259,6 @@ public class TeleopLM2 extends LinearOpMode {
         forward = temp;
         right = side;
 
-//        telemetry.addData("right: ", right);
-//        telemetry.addData("forward: ", forward);
-//        telemetry.addData("temp: ", temp);
-//        telemetry.addData("side: ", side);
-//        telemetry.addData("clockwise: ", clockwise);
-
-
         denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
 
         frontLeftV = (forward + right + clockwise) / denominator;
@@ -370,9 +363,9 @@ public class TeleopLM2 extends LinearOpMode {
             SpecimenClaw.setPosition(ClawClosed);
             ArmClaw.setPosition(ArmClawClosed);
             intakeArm.setPosition(IntakeArmHang);
+
             AscentArmDown = false;
         }
-
         if (matchtime.seconds()<90 && matchtime.seconds()>91)
             gamepad2.rumble(500);
 
