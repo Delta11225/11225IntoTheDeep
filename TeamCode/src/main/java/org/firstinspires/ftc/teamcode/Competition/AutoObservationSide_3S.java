@@ -78,7 +78,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                     robot.claw.setPosition(ClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-                .strafeLeft(5)
+                .strafeLeft(5) //position is (1.5, 24)
                 .build();
 
         //pushes first blue sample into observation zone, also grabs second specimen
@@ -130,7 +130,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-//fixed version
+//fixed version V2
 
                 .build();
 
