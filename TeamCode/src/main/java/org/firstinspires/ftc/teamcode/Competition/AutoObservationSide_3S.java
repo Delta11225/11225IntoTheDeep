@@ -100,22 +100,22 @@ public class AutoObservationSide_3S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-38.5,8), Math.toRadians(180),
+                        new Vector2d(-40.5,8), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-41,16), Math.toRadians(90),
+                        new Vector2d(-45,16), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-41,56), Math.toRadians(270),
+                        new Vector2d(-45,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(38, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-34,40), Math.toRadians(0),
+                        new Vector2d(-36,40), Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(42, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -126,7 +126,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                 )
                 //GRAB!!!
                 .splineToConstantHeading(
-                        new Vector2d(-29.5,66), Math.toRadians(90),
+                        new Vector2d(-29.5,68), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
