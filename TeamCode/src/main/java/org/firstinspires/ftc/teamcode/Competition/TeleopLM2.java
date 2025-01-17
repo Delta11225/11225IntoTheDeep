@@ -85,14 +85,14 @@ public class TeleopLM2 extends LinearOpMode {
     int linearSlideTarget = 0; //setting initial target to 0
     int highBucketHeight = 3450;
     int lowBucketHeight = 1600;
-    int highChamberHeight = 1875;
+    int highChamberHeight = 1800;
     int lowChamberHeight = 538;
     int highChamberReleaseHeight = 1270;
     int autoGrabLSHeight = 500;
 
     //ascent arm encoder locations
-    int armHang = 234;
-    int armHook = 8515;
+    int armHang = 134;
+    int armHook = 8415;
     int store = 0;
 
     //intake arm variables
@@ -274,9 +274,10 @@ public class TeleopLM2 extends LinearOpMode {
             powerMultiplier = .8;//FAST MODE
         } else if (gamepad1.right_bumper) {
             powerMultiplier = .3; //SLOW MODE
-        } else {
+        } else if ((gamepad1.right_trigger >= .5) && (gamepad1.left_trigger >= .5)) {
+            powerMultiplier = 1;//SUPERSPEED
+        } else
             powerMultiplier = .6; //NORMAL MODE
-        }
 
         frontLeft.setPower(frontLeftV * powerMultiplier);
         frontRight.setPower(frontRightV * powerMultiplier);

@@ -100,22 +100,22 @@ public class AutoObservationSide_3S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-42.75,8), Math.toRadians(180),
+                        new Vector2d(-41.25,8), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-48.5,16), Math.toRadians(90),
+                        new Vector2d(-46.5,16), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-48.5,56), Math.toRadians(270),
+                        new Vector2d(-46.5,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(38, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-38,40), Math.toRadians(0),
+                        new Vector2d(-37.5,40), Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(42, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -126,11 +126,11 @@ public class AutoObservationSide_3S extends LinearOpMode {
                 )
                 //GRAB!!!
                 .splineToConstantHeading(
-                        new Vector2d(-29.5,68), Math.toRadians(90),
+                        new Vector2d(-29.5,70), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-//fixed version V2
+                //fixed version V2
 
                 .build();
 
@@ -148,7 +148,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                 )
                 //lifts linear slide while moving
                 .addSpatialMarker(new Vector2d(-42, 59), () -> {
-                    robot.linearSlide.setTargetPosition(1750);//was 2050
+                    robot.linearSlide.setTargetPosition(1800);//was 2050
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
@@ -167,16 +167,16 @@ public class AutoObservationSide_3S extends LinearOpMode {
 
         //goes to grab 3rd specimen //GRAB!!!
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(-28, 60.5, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-28, 62, Math.toRadians(180)))
                 .strafeRight(6.8)
                 .build();
 
         //hangs 3rd specimen
         TrajectorySequence traj5 = drive.trajectorySequenceBuilder(traj4.end())
-                .lineToLinearHeading(new Pose2d(3, 36, Math.toRadians(359)))
+                .lineToLinearHeading(new Pose2d(3, 35, Math.toRadians(360)))
                 //lifts linear slide while moving
                 .addSpatialMarker(new Vector2d(-42, 59), () -> {
-                    robot.linearSlide.setTargetPosition(1750);//was 2050
+                    robot.linearSlide.setTargetPosition(1800); //was 2050
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
