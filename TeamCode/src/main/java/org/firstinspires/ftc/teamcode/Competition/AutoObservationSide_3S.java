@@ -100,22 +100,22 @@ public class AutoObservationSide_3S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-43,8), Math.toRadians(180),
+                        new Vector2d(-42.75,8), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-50,16), Math.toRadians(90),
+                        new Vector2d(-48.5,16), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-50,56), Math.toRadians(270),
+                        new Vector2d(-48.5,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(38, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-38.5,40), Math.toRadians(0),
+                        new Vector2d(-38,40), Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(42, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -181,7 +181,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 //moves closer to submersible
-                .strafeRight(5)
+                .strafeRight(6)
                 //clips second specimen
                 .addDisplacementMarker(() -> {
                     robot.linearSlide.setTargetPosition(875);
