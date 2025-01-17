@@ -130,7 +130,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-
+//fixed version
 
                 .build();
 
