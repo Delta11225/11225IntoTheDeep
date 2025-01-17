@@ -98,8 +98,8 @@ public class TeleopLM2 extends LinearOpMode {
     //intake arm variables
     double IntakeArmUp = .84;
     double IntakeArmHang = .90;
-    double IntakeArmHoldEmpty = .575;
-    double IntakeArmHoldFull = .65;
+    double IntakeArmHoldEmpty = .59;
+    double IntakeArmHoldFull = .63;
     double IntakeArmDown = .53;
 
     // Arm Claw Variables
@@ -118,6 +118,7 @@ public class TeleopLM2 extends LinearOpMode {
     boolean ClawLoaded = false;
     boolean ArmInHold = false;
     boolean AscentArmDown = true;
+    boolean EndgameOverride = false;
 
 
     //String Variables
@@ -243,6 +244,8 @@ public class TeleopLM2 extends LinearOpMode {
 
 
     public void move(){
+
+
         double theta = Math.toRadians(currentAngle);
 
 //        telemetry.addData("CurrentAngle", currentAngle);
@@ -280,8 +283,6 @@ public class TeleopLM2 extends LinearOpMode {
         rearLeft.setPower(rearLeftV * powerMultiplier);
         rearRight.setPower(rearRightV * powerMultiplier);
 
-
-
     }
 
     public void peripheralmove() {
@@ -295,13 +296,13 @@ public class TeleopLM2 extends LinearOpMode {
             } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
                 sampleColor = "yellow";
             }
-        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 8) &&
-                (sensorDistance.getDistance(DistanceUnit.CM) > 3) && ArmUp == false) {
+        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 9.5) &&
+                 ArmUp == false && ClawLoaded==false) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue-detected";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
                 sampleColor = "red-detected";
-            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
+            } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue()) && (sensorColor.green() > 100)) {
                 sampleColor = "yellow-detected";
             }
         }
@@ -309,33 +310,37 @@ public class TeleopLM2 extends LinearOpMode {
                 sampleColor = "none";
             }
 
-
-//////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
-
-        if (sampleColor == "blue") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-        } else if (sampleColor == "red") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        } else if (sampleColor == "yellow") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
-        } else if (sampleColor == "blue-detected") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
-        } else if (sampleColor == "red-detected") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
-        } else if (sampleColor == "yellow-detected") {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
-        } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-        }
         ////////////////MATCH TIMER LEDs///////////////////////////
         if ((matchtime.seconds() > 85) && (matchtime.seconds() < 90)) {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
-
+            EndgameOverride = true;
         } else if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
-
+            EndgameOverride = true;
         } else if ((matchtime.seconds() > 120)) {
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
+            EndgameOverride = true;
+        } else
+            EndgameOverride = false;
+
+//////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
+
+        if (EndgameOverride == false) {
+            if (sampleColor == "blue") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+            } else if (sampleColor == "red") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (sampleColor == "yellow") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+            } else if (sampleColor == "blue-detected") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
+            } else if (sampleColor == "red-detected") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
+            } else if (sampleColor == "yellow-detected") {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+            } else {
+                lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+            }
         }
 
 
@@ -493,7 +498,7 @@ public class TeleopLM2 extends LinearOpMode {
 
 ////////////////////////////////////////SPECIMEN CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 4 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
+        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 5 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
             gamepad2.rumble(500);
             SpecimenClaw.setPosition(ClawClosed);//Claw Closed
             clawLastClosed.reset();

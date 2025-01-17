@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleOpLM2")
+@Autonomous(preselectTeleOp = "TeleopLM2")
 
 public class AutoNetSide_3S extends LinearOpMode {
 
@@ -28,7 +28,7 @@ public class AutoNetSide_3S extends LinearOpMode {
     double ArmClawClosed = 0.5;
 
     double ClawOpen = 0.4;
-    double ClawClosed = 0.8;
+    double ClawClosed = 0.85;
 
     int highBucketHeight = 3600;
     int lowBucketHeight = 1675;
