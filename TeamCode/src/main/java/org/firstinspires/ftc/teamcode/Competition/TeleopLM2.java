@@ -82,7 +82,7 @@ public class TeleopLM2 extends LinearOpMode {
     double powerMultiplier;//drive power multiplier
 
     //linear slide height variables
-    int linearSlideTarget = 0; //setting intitial target to 0
+    int linearSlideTarget = 0; //setting initial target to 0
     int highBucketHeight = 3450;
     int lowBucketHeight = 1600;
     int highChamberHeight = 1875;
