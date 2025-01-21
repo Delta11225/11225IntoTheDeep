@@ -19,6 +19,8 @@ public class AscentArmReset extends OpMode {
     TouchSensor touch;
     public Servo ArmClaw;
     double ArmClawClosed = 0.5;
+    public Servo intakeArm = null;
+    double IntakeArmUp = .87;
 
     @Override
     public void init() {
@@ -28,8 +30,9 @@ public class AscentArmReset extends OpMode {
         //ascentArm.setDirection(DcMotor.Direction.REVERSE);
         ascentArm.setZeroPowerBehavior(BRAKE);
         ArmClaw = hardwareMap.get(Servo.class, "arm_claw");
-
+        intakeArm = hardwareMap.get(Servo.class, "intake_arm");
         ArmClaw.setPosition(ArmClawClosed);
+        intakeArm.setPosition(IntakeArmUp);
     }
 
     @Override
