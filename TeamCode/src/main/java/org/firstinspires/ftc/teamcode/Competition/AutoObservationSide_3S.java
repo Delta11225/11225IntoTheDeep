@@ -153,7 +153,7 @@ public class AutoObservationSide_3S extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 .splineToConstantHeading(
-                        new Vector2d(-3,31), Math.toRadians(270),
+                        new Vector2d(-3,30), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
