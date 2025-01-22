@@ -136,12 +136,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,56), Math.toRadians(90),
-                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .splineToConstantHeading(
-                        new Vector2d(-48,53), Math.toRadians(0),
+                        new Vector2d(-56.25,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -178,7 +173,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 .splineToConstantHeading(
-                        new Vector2d(-3,29.5), Math.toRadians(270),
+                        new Vector2d(-3,30.5), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
