@@ -197,6 +197,11 @@ public class TeleopJUDGING extends LinearOpMode {
 
     public void peripheralmove() {
 ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
+        if (gamepad2.left_stick_button) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
+        } else if (gamepad2.right_stick_button) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+        }
 
         if (sensorDistance.getDistance(DistanceUnit.CM) <= 3) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
@@ -220,16 +225,9 @@ public class TeleopJUDGING extends LinearOpMode {
             }
 
         ////////////////MATCH TIMER LEDs///////////////////////////
-        if (gamepad2.left_stick_button) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
-        } else if (gamepad2.right_stick_button) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
-        } else
-            EndgameOverride = false;
 
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
-        if (EndgameOverride == false) {
             if (sampleColor == "blue") {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
             } else if (sampleColor == "red") {
@@ -245,7 +243,6 @@ public class TeleopJUDGING extends LinearOpMode {
             } else {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
             }
-        }
 
 
         //////////////GAMEPAD 1//////////////
@@ -276,13 +273,7 @@ public class TeleopJUDGING extends LinearOpMode {
 
 //////////////////////////////////////////linear slide///////////////////////
 
-        if (gamepad2.y && ArmUp == true) {
-            slideDown = false;
-            linearSlideTarget = highBucketHeight;
-            linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
-            SpecimenClaw.setPosition(ClawClosed);
-        }
+
         // bring slide to ground
         if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
             slideGoingDown = true;
@@ -311,18 +302,7 @@ public class TeleopJUDGING extends LinearOpMode {
             linearSlide.setTargetPosition(0);
             linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        if (gamepad2.b && ArmUp == true) {
-            slideDown = false;
-            linearSlideTarget = highChamberHeight;//high chamber height
-            linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
-        }
-        if (gamepad2.a && ArmUp == true) {
-            slideDown = false;
-            linearSlideTarget = highChamberReleaseHeight;//high chamber release height
-            linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(1);
-        }
+
 
 ////////////////////////////////////////manual specimen claw controls///////////////////////
 
@@ -353,10 +333,7 @@ public class TeleopJUDGING extends LinearOpMode {
             }
         }
 
-    //////////////////IMU Reset///////////////////////////
-    if(gamepad1.right_trigger > 0.6 && gamepad1.left_trigger > 0.6) {
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
-    }
+
     telemetry.addData("current angle", currentAngle);
     }
 
