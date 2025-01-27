@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 @Autonomous(preselectTeleOp = "TeleopLM2")
-public class AutoObservationSide_4S_V3 extends LinearOpMode {
+public class AutoObservationSide_4S_V4 extends LinearOpMode {
 
     RevBlinkinLedDriver lights;
     HardwareITD robot;
@@ -182,16 +182,17 @@ public class AutoObservationSide_4S_V3 extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToSplineHeading(
-                        new Pose2d(-3,48, Math.toRadians(0.1)), Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
                 .splineToConstantHeading(
-                        new Vector2d(-3,26), Math.toRadians(270),
+                        new Vector2d(-15,63), Math.toRadians(290),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
+                .splineToSplineHeading(
+                        new Pose2d(-3,26, Math.toRadians(0)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+
                 .addDisplacementMarker(() -> {
                     robot.linearSlide.setTargetPosition(875);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
