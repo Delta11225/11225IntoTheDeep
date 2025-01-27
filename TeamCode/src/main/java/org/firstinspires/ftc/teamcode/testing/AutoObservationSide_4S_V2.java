@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Competition;
+package org.firstinspires.ftc.teamcode.testing;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 @Autonomous(preselectTeleOp = "TeleopLM2")
-public class AutoObservationSide_4S extends LinearOpMode {
+public class AutoObservationSide_4S_V2 extends LinearOpMode {
 
     RevBlinkinLedDriver lights;
     HardwareITD robot;
@@ -59,7 +59,6 @@ public class AutoObservationSide_4S extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
 
-
         //Trajectory Sequence for deploying preloaded specimen
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
                 //closing claw and lifting arm up
@@ -68,7 +67,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
                 //approach submersible
-                .lineToConstantHeading(new Vector2d(3.5, 29))
+                .lineToConstantHeading(new Vector2d(1.5, 29))
                 //start lifting slide when robot is at (-12,64) which is close to start pose
                 .addSpatialMarker(new Vector2d(-12, 64), () -> {
                     robot.linearSlide.setTargetPosition(2250);
@@ -79,17 +78,15 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.claw.setPosition(ClawOpen);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-                .build();
+                .waitSeconds(0.3)
+                //pushes first blue sample into observation zone, also grabs second specimen
 
-        //pushes first blue sample into observation zone, also grabs second specimen
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end(),Math.toRadians(100))
 
                 //start lowing slide and opening claw while robot is splining
-                .addSpatialMarker(new Vector2d(-1.5, 36), () -> {
+                .addDisplacementMarker(()->{
                     robot.linearSlide.setTargetPosition(0);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
-
                 })
                 .splineToSplineHeading(
                         new Pose2d(-16,46, Math.toRadians(90)), Math.toRadians(180),
@@ -117,12 +114,12 @@ public class AutoObservationSide_4S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-46.5,48), Math.toRadians(270),
+                        new Vector2d(-46.5,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-46.5,44), Math.toRadians(270),
+                        new Vector2d(-46.5,50), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -142,12 +139,12 @@ public class AutoObservationSide_4S extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,48), Math.toRadians(270),
+                        new Vector2d(-56.25,56), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,44), Math.toRadians(270),
+                        new Vector2d(-56.25,50), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -166,25 +163,31 @@ public class AutoObservationSide_4S extends LinearOpMode {
                 .build();
 
         //goes to submersible holding second specimen
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end(), Math.toRadians(270))
+        Trajectory traj3 = drive.trajectoryBuilder(traj1.end(), Math.toRadians(270))
+                //raises slide while going to hang specimen
+                .addSpatialMarker(new Vector2d(-29, 68), () -> {
+                    robot.linearSlide.setTargetPosition(200);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+
+                })
                 .splineToConstantHeading(
-                        new Vector2d(-28,64), Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(51, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Vector2d(-23,68.3), Math.toRadians(0),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .splineToConstantHeading(
+                        new Vector2d(-17,63), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToSplineHeading(
-                        new Pose2d(-15,43, Math.toRadians(0)), Math.toRadians(360),
-                        SampleMecanumDrive.getVelocityConstraint(46, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        new Pose2d(-10,48, Math.toRadians(0)), Math.toRadians(0),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                //lifts linear slide while moving
-                .addSpatialMarker(new Vector2d(-42, 59), () -> {
-                    robot.linearSlide.setTargetPosition(1800);//was 2050
-                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.linearSlide.setPower(1);
-                })
                 .splineToConstantHeading(
-                        new Vector2d(0,26), Math.toRadians(270),
+                        new Vector2d(-3,26), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -203,7 +206,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
                 .splineToConstantHeading(
-                        new Vector2d(-3,34), Math.toRadians(160),
+                        new Vector2d(-7,34), Math.toRadians(160),
                         SampleMecanumDrive.getVelocityConstraint(45, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -246,7 +249,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 .splineToConstantHeading(
-                        new Vector2d(-4,25), Math.toRadians(270),
+                        new Vector2d(-3,26), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -307,7 +310,7 @@ public class AutoObservationSide_4S extends LinearOpMode {
                     robot.linearSlide.setPower(1);
                 })
                 .splineToConstantHeading(
-                        new Vector2d(-7,26), Math.toRadians(270),
+                        new Vector2d(-10,26), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -326,18 +329,17 @@ public class AutoObservationSide_4S extends LinearOpMode {
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         drive.followTrajectorySequence(traj1);
 
-       // drive.followTrajectory(traj2);
-        //retrieveObservationSpecimen();
-       // drive.followTrajectory(traj3);
+        retrieveObservationSpecimen();
+        drive.followTrajectory(traj3);
 
-       // drive.followTrajectory(traj4);
-       // retrieveObservationSpecimen();
-        //drive.followTrajectory(traj5);
+        drive.followTrajectory(traj4);
+        retrieveObservationSpecimen();
+        drive.followTrajectory(traj5);
 
-        //drive.followTrajectory(traj6);
-        //retrieveObservationSpecimen();
-        //drive.followTrajectory(traj7);
-        //deploySpecimen();
+        drive.followTrajectory(traj6);
+        retrieveObservationSpecimen();
+        drive.followTrajectory(traj7);
+        deploySpecimen();
 
 
     }
@@ -365,9 +367,9 @@ public class AutoObservationSide_4S extends LinearOpMode {
         //grab specimen hanging on wall
         robot.claw.setPosition(ClawClosed);
         robot.intakeArm.setPosition(IntakeArmUp);
-        sleep(300);
+        sleep(500);
         //lift linear slide up to clear wall with specimen
-        robot.linearSlide.setTargetPosition(400);
+        robot.linearSlide.setTargetPosition(700);
         robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.linearSlide.setPower(1);
         while (robot.linearSlide.isBusy()) {
