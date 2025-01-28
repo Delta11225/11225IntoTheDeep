@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
 @Autonomous(preselectTeleOp = "TeleopFINAL")
 
-public class AutoNetSide_3S extends LinearOpMode {
+public class AutoNetSide_4S extends LinearOpMode {
 
     RevBlinkinLedDriver lights;
     HardwareITD robot;
@@ -69,7 +69,7 @@ public class AutoNetSide_3S extends LinearOpMode {
                     robot.SpecimenClaw.setPosition(ClawClosed);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-            .lineToLinearHeading(new Pose2d(57, 54, Math.toRadians(45)))
+            .lineToLinearHeading(new Pose2d(56, 55, Math.toRadians(45)))
                 .addSpatialMarker(new Vector2d(35, 66),() ->{
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.ArmClaw.setPosition(ArmClawClosed);
@@ -91,17 +91,25 @@ public class AutoNetSide_3S extends LinearOpMode {
 
             .build();
 
-        //picks up first yellow sample with claw arm
-        Trajectory traj2 = drive.trajectoryBuilder(new Pose2d(57,54, Math.toRadians(45)),Math.toRadians(270))
+        //picks up second yellow sample with claw arm
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end(),Math.toRadians(270)) //(57, 54)
             .splineToLinearHeading(new Pose2d(51.5,47, Math.toRadians(270)), Math.toRadians(180),
                  SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                  SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
             )
+                .addSpatialMarker(new Vector2d(57,54),() ->{
+                    robot.intakeArm.setPosition(IntakeArmUp);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
+                    robot.linearSlide.setTargetPosition(0);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
 
             .build();
-        //approaching basket
+
+        //goes to high bucket with 2nd yellow sample
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end(), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(57,54, Math.toRadians(45)), Math.toRadians(45),
+                .splineToLinearHeading(new Pose2d(56,55, Math.toRadians(45)), Math.toRadians(45),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -115,7 +123,7 @@ public class AutoNetSide_3S extends LinearOpMode {
                 })
                 .build();
 
-        //goes to high bucket with 1st yellow sample
+        //approaches basket
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj3.end())
 
 
@@ -132,38 +140,43 @@ public class AutoNetSide_3S extends LinearOpMode {
 
             .build();
 
-        //grabs second sample
+        //grabs third sample
         Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToLinearHeading(new Pose2d(61.5,47, Math.toRadians(270)),
+                .lineToLinearHeading(new Pose2d(60,46, Math.toRadians(270)),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
+                .addSpatialMarker(new Vector2d(56,53),() ->{
+                    robot.intakeArm.setPosition(IntakeArmUp);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
+                    robot.linearSlide.setTargetPosition(0);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
 
                 .build();
 
-
+        //goes to high bucket with 3rd sample
         Trajectory traj6 = drive.trajectoryBuilder(traj5.end(),Math.toRadians(180))
-                .splineToLinearHeading(new Pose2d(52, 53, Math.toRadians(45)),Math.toRadians(0),
+                .splineToLinearHeading(new Pose2d(51, 54, Math.toRadians(45)),Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-
-
-               .build();
-
-
-
-
-
-        //put second sample in high basket
-        TrajectorySequence traj7 = drive.trajectorySequenceBuilder(traj6.end())
-                .addDisplacementMarker(() ->{
+                //raises linear slide
+                .addSpatialMarker(new Vector2d(61,48),() ->{
                     robot.intakeArm.setPosition(IntakeArmUp);
                     robot.ArmClaw.setPosition(ArmClawClosed);
                     robot.linearSlide.setTargetPosition(highBucketHeight);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
                 })
+
+               .build();
+
+
+        //approaches basket
+        TrajectorySequence traj7 = drive.trajectorySequenceBuilder(traj6.end())
+
                 .forward(0.00001)
                 .waitSeconds(1.3)
                 .forward(7)
@@ -178,13 +191,56 @@ public class AutoNetSide_3S extends LinearOpMode {
                 .back(6)
 
             .build();
-// adjusts heading for teleop
+
+        //grabs 4th sample
         TrajectorySequence traj8 = drive.trajectorySequenceBuilder(traj7.end())
-                .lineToLinearHeading(new Pose2d(48, 48, Math.toRadians(270)),
+                .lineToLinearHeading(new Pose2d(58.5, 41, Math.toRadians(300)),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
 
+                .addSpatialMarker(new Vector2d(59,52),() ->{
+                    robot.intakeArm.setPosition(IntakeArmUp);
+                    robot.ArmClaw.setPosition(ArmClawOpen);
+                    robot.linearSlide.setTargetPosition(0);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
+
                 .build();
+
+        Trajectory traj9 = drive.trajectoryBuilder(traj8.end(),Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(51, 54, Math.toRadians(45)),Math.toRadians(0),
+                        SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                //raises linear slide
+                .addSpatialMarker(new Vector2d(57,42),() ->{
+                    robot.intakeArm.setPosition(IntakeArmUp);
+                    robot.ArmClaw.setPosition(ArmClawClosed);
+                    robot.linearSlide.setTargetPosition(highBucketHeight);
+                    robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.linearSlide.setPower(1);
+                })
+
+                .build();
+
+        TrajectorySequence traj10 = drive.trajectorySequenceBuilder(traj9.end())
+
+                .forward(0.00001)
+                .waitSeconds(1.3)
+                .forward(7)
+                .waitSeconds(0.3)
+                //drops 1st yellow sample into high basket
+                .addDisplacementMarker(()->{
+                    robot.ArmClaw.setPosition(ArmClawOpen);
+                    robot.intakeArm.setPosition(IntakeArmUp);
+                })
+                .forward(0.0001)
+                .waitSeconds(0.3)
+                .back(6)
+
+                .build();
+
 
 
 
@@ -195,7 +251,7 @@ public class AutoNetSide_3S extends LinearOpMode {
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
 
       drive.followTrajectorySequence(traj1);
-      returnSlideToGround();
+
       drive.followTrajectory(traj2);
       sleep(300);
       grabsample();
@@ -203,17 +259,19 @@ public class AutoNetSide_3S extends LinearOpMode {
       drive.followTrajectory(traj3);
       sleep(300);
       drive.followTrajectorySequence(traj4);
-      returnSlideToGround();
+
       drive.followTrajectory(traj5);
       sleep(300);
       grabsample();
       sleep(300);
       drive.followTrajectory(traj6);
-      sleep(300);
+      //sleep(300);
       drive.followTrajectorySequence(traj7);
-      returnSlideToGround();
-      drive.followTrajectorySequence(traj8);
 
+      drive.followTrajectorySequence(traj8);
+      grabsample();
+      drive.followTrajectory(traj9);
+      drive.followTrajectorySequence(traj10);
     }
 
     public void grabsample(){
@@ -222,9 +280,9 @@ public class AutoNetSide_3S extends LinearOpMode {
 
             //lower arm
             robot.intakeArm.setPosition(IntakeArmHold);
-            sleep(70);
+            sleep(600);
             robot.intakeArm.setPosition(IntakeArmDown);
-            sleep(800);
+            sleep(600);
 
             //close claw on 1st yellow sample
             robot.ArmClaw.setPosition(ArmClawClosed);

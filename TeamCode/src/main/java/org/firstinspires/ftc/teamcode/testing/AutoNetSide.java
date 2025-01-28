@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleOpLM1")
+@Autonomous(preselectTeleOp = "TeleopFINAL")
 @Disabled
 public class AutoNetSide extends LinearOpMode {
 

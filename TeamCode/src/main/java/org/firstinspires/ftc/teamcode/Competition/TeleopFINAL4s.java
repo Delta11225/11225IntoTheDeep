@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Competition;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -25,9 +23,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 @TeleOp
 //@Disabled
-public class TeleopJUDGING extends LinearOpMode {
+public class TeleopFINAL4s extends LinearOpMode {
 
     //LED lights
     RevBlinkinLedDriver lights;
@@ -138,6 +138,24 @@ public class TeleopJUDGING extends LinearOpMode {
 
         composeTelemetry();
 
+    ////////////initialize drive motors////////////////
+        rearLeft = hardwareMap.dcMotor.get("leftRear");
+        rearLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        frontLeft = hardwareMap.dcMotor.get("leftFront");
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        frontRight = hardwareMap.dcMotor.get("rightFront");
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+
+        rearRight = hardwareMap.dcMotor.get("rightRear");
+        rearRight.setDirection(DcMotor.Direction.FORWARD);
+
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        rearLeft.setPower(0);
+        rearRight.setPower(0);
+
     //////////////////initialize arm claw & Sensor///////////////////////
         sensorColor = hardwareMap.get(ColorSensor.class, "colorV3");//armClaw color sensor
         sensorDistance = hardwareMap.get(DistanceSensor.class, "colorV3"); //armClaw distance sensor
@@ -155,13 +173,16 @@ public class TeleopJUDGING extends LinearOpMode {
 
     //////////////////initialize intake arm///////////////////////
         intakeArm = hardwareMap.get(Servo.class, "intake_arm");
-        intakeArm.setPosition(.75);
+        intakeArm.setPosition(IntakeArmUp);
+
+
 
     //////////////////initialize specimen claw & sensors////////////////////////////
         SpecimenClaw = hardwareMap.get(Servo.class, "claw");
         sensorColorSpecimenClaw = hardwareMap.get(ColorSensor.class, "claw_colorV3");
         sensorDistanceSpecimenClaw = hardwareMap.get(DistanceSensor.class, "claw_colorV3");
         SpecimenClaw.setPosition(ClawOpen);
+
 
     /////////////// initialize Ascent Arm//////////////////////
         ascentArm = hardwareMap.get(DcMotor.class, "ascent_arm");
@@ -172,15 +193,18 @@ public class TeleopJUDGING extends LinearOpMode {
         ascentArm.setTargetPosition(store);
         ascentArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+
     /////////////// initialize LED lights//////////////////////
         lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
         //LED lights light up to signal that init phase complete
+
 
 /////////////////////////////////////// End init phase/////////////////////////////////////////////////////////////
 
         waitForStart();
         //operations to complete 1 time at the start of teleOp (DO NOT WANT TO LOOP)
+        matchtime.reset();
         clawLastClosed.reset();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
         currentAngle = 0;
@@ -188,22 +212,80 @@ public class TeleopJUDGING extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            telemetry.update();
+
+            while (angles.firstAngle < 0 && opModeIsActive()) {
+
                 telemetry.update();
+                move();
                 peripheralmove();
 
+                currentAngle = angles.firstAngle + 360;
+//                telemetry.addData("currentAngle loop 1", "%.1f", currentAngle);
             }
-        }
 
+            while (angles.firstAngle >= 0 && opModeIsActive()) {
+
+                telemetry.update();
+                move();
+                peripheralmove();
+
+                currentAngle = angles.firstAngle;
+//                telemetry.addData("currentAngle loop 2", "%.1f", currentAngle);
+            }
+
+            telemetry.addLine("null angle");
+        }
+    }
+
+
+    public void move(){
+
+
+        double theta = Math.toRadians(currentAngle);
+
+//        telemetry.addData("CurrentAngle", currentAngle);
+//        telemetry.addData("Theta", theta);
+
+        //update to change starting orientation if needed
+        forward = -gamepad1.left_stick_x; //left joystick up
+        right = -gamepad1.left_stick_y; //left joystick right
+        clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
+
+        temp = (forward * Math.cos(theta) - right * Math.sin(theta));
+        side = (forward * Math.sin(theta) + right * Math.cos(theta));
+
+        forward = temp;
+        right = side;
+
+        denominator = Math.max(Math.abs(forward) + Math.abs(right) + Math.abs(clockwise), 1);
+
+        frontLeftV = (forward + right + clockwise) / denominator;
+        rearLeftV = (forward - right + clockwise) / denominator;
+        rearRightV = (forward + right - clockwise) / denominator;
+        frontRightV = (forward - right - clockwise) / denominator;
+
+        //Handle speed controls
+        if (gamepad1.left_bumper) {
+            powerMultiplier = .8;//FAST MODE
+        } else if (gamepad1.right_bumper) {
+            powerMultiplier = .3; //SLOW MODE
+        } else if ((gamepad1.right_trigger >= .5) && (gamepad1.left_trigger >= .5)) {
+            powerMultiplier = 1;//SUPERSPEED
+        } else
+            powerMultiplier = .6; //NORMAL MODE
+
+        frontLeft.setPower(frontLeftV * powerMultiplier);
+        frontRight.setPower(frontRightV * powerMultiplier);
+        rearLeft.setPower(rearLeftV * powerMultiplier);
+        rearRight.setPower(rearRightV * powerMultiplier);
+
+    }
 
     public void peripheralmove() {
 ///////////////////////////////////SAMPLE COLOR DETECTION ARM CLAW///////////////////////////
-        if (gamepad2.left_stick_button) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
-        } else if (gamepad2.right_stick_button) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
-        }
 
-        if (sensorDistance.getDistance(DistanceUnit.CM) <= 3) {
+        if (sensorDistance.getDistance(DistanceUnit.CM) <= 3 && ClawLoaded==true) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
@@ -211,7 +293,8 @@ public class TeleopJUDGING extends LinearOpMode {
             } else if ((sensorColor.green() > sensorColor.red()) && (sensorColor.red() > sensorColor.blue())) {
                 sampleColor = "yellow";
             }
-        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 9.5)) {
+        } else if ((sensorDistance.getDistance(DistanceUnit.CM) <= 9.5) &&
+                 ArmUp == false && ClawLoaded==false) {
             if ((sensorColor.blue() > sensorColor.green()) && (sensorColor.blue() > sensorColor.red())) {
                 sampleColor = "blue-detected";
             } else if ((sensorColor.red() > sensorColor.blue()) && (sensorColor.red() > sensorColor.green())) {
@@ -225,9 +308,21 @@ public class TeleopJUDGING extends LinearOpMode {
             }
 
         ////////////////MATCH TIMER LEDs///////////////////////////
+        if ((matchtime.seconds() > 85) && (matchtime.seconds() < 90)) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_FOREST_PALETTE);
+            EndgameOverride = true;
+        } else if ((matchtime.seconds() > 100) && matchtime.seconds() < 120) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+            EndgameOverride = true;
+        } else if ((matchtime.seconds() > 120)) {
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_GRADIENT);
+            EndgameOverride = true;
+        } else
+            EndgameOverride = false;
 
 //////////////////////////////SAMPLE DETECTION LED SIGNALS//////////////////////////////////////
 
+        if (EndgameOverride == false) {
             if (sampleColor == "blue") {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
             } else if (sampleColor == "red") {
@@ -243,22 +338,40 @@ public class TeleopJUDGING extends LinearOpMode {
             } else {
                 lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
             }
+        }
 
 
         //////////////GAMEPAD 1//////////////
 
-/////////////////////////////////////Ascent Arm Manual//////////////////////////////////////////////////////
-        if (gamepad2.dpad_up){
+/////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
+        if (gamepad1.dpad_down & gamepad1.a) {
+            ascentArm.setTargetPosition(store);
             ascentArm.setPower(0.5);
-
-        }
-        else if (gamepad2.dpad_down) {
-            ascentArm.setPower(-0.5);
+            AscentArmDown = true;
         }
 
-        else {
-            ascentArm.setPower(0.0);
+        if (gamepad1.dpad_left & gamepad1.b) {
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHook);
+            ArmClaw.setPosition(ArmClawClosed);
+            SpecimenClaw.setPosition(ClawClosed);
+            AscentArmDown = false;
         }
+
+        if (gamepad1.dpad_up & gamepad1.y) {
+            ascentArm.setPower(1);
+            ascentArm.setTargetPosition(armHang);
+            //close specimen claw for safe hanging
+            SpecimenClaw.setPosition(ClawClosed);
+            ArmClaw.setPosition(ArmClawClosed);
+            intakeArm.setPosition(IntakeArmHang);
+
+            AscentArmDown = false;
+        }
+        if (matchtime.seconds()<90 && matchtime.seconds()>91)
+            gamepad2.rumble(500);
+
+
                                 //////////////GAMEPAD 2//////////////
 
 //////////////////////////MANUAL ARM CLAW CONTROLS///////////////////////////////////////////
@@ -273,7 +386,20 @@ public class TeleopJUDGING extends LinearOpMode {
 
 //////////////////////////////////////////linear slide///////////////////////
 
-
+        if (gamepad2.y && ArmUp == true) {
+            slideDown = false;
+            linearSlideTarget = highBucketHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+            SpecimenClaw.setPosition(ClawClosed);
+        }
+        if (gamepad2.x && ArmUp == true) {
+            slideDown = false;
+            linearSlideTarget = lowBucketHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+            SpecimenClaw.setPosition(ClawClosed);
+        }
         // bring slide to ground
         if (gamepad2.left_stick_y > 0.5 && gamepad2.right_stick_y > 0.5) {
             slideGoingDown = true;
@@ -302,9 +428,60 @@ public class TeleopJUDGING extends LinearOpMode {
             linearSlide.setTargetPosition(0);
             linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
+        if (gamepad2.b && ArmUp == true) {
+            slideDown = false;
+            linearSlideTarget = highChamberHeight;//high chamber height
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+        }
+        if (gamepad2.a && ArmUp == true) {
+            slideDown = false;
+            linearSlideTarget = highChamberReleaseHeight;//high chamber release height
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(1);
+        }
 
+////////////////////////////////////////intake arm///////////////////////
+        // brings arm to score/up position
+        if (gamepad2.dpad_up) {
+            intakeArm.setPosition(IntakeArmUp);
+            ArmUp = true;
+            ArmInHold = false;
+        }
+        // brings arm to down/collect position
+        if (gamepad2.dpad_down && slideDown == true) {
+            if (ArmUp == true){
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            if (ArmInHold == true) {
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            intakeArm.setPosition(IntakeArmDown);
+            ArmUp = false;
+            ArmInHold = false;
+        }
+        // brings arm to hold position
+        if (gamepad2.dpad_left && slideDown == true) {
+            if (ArmUp == true){
+                ArmClaw.setPosition(ArmClawOpen);
+                ClawLoaded = false;
+            }
+            ArmInHold = true;
+            ArmUp = false;
+        }
 
-////////////////////////////////////////manual specimen claw controls///////////////////////
+        if (ArmInHold == true && ClawLoaded == true) {
+            intakeArm.setPosition(IntakeArmHoldFull);
+            ArmUp = false;
+        }
+        if (ArmInHold == true && ClawLoaded == false) {
+            intakeArm.setPosition(IntakeArmHoldEmpty);
+            ArmUp = false;
+        }
+
+////////////////////////////////////////manual speciment claw controls///////////////////////
 
         if (gamepad2.left_trigger > 0.5) {
             SpecimenClaw.setPosition(ClawOpen);
@@ -318,21 +495,30 @@ public class TeleopJUDGING extends LinearOpMode {
 
 ////////////////////////////////////////SPECIMEN CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (touchLinSlide.isPressed() == true) {
-            if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 5 && SpecimenclawIsOpen == true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
-                SpecimenClaw.setPosition(ClawClosed);//Claw Closed
-                clawLastClosed.reset();
-                SpecimenclawIsOpen = false;
-            }
-            if (SpecimenclawIsOpen == false && clawLastClosed.seconds() > 0.25 && clawLastClosed.seconds() < 1) {
-                slideDown = false;
-                linearSlideTarget = autoGrabLSHeight;
-                linearSlide.setTargetPosition(linearSlideTarget);
-                linearSlide.setPower(0.6);
-            }
+        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 5 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
+            gamepad2.rumble(500);
+            SpecimenClaw.setPosition(ClawClosed);//Claw Closed
+            clawLastClosed.reset();
+            SpecimenclawIsOpen=false;
         }
-
-
+        if(SpecimenclawIsOpen == false && clawLastClosed.seconds()>0.25 && clawLastClosed.seconds()<1){
+            slideDown = false;
+            linearSlideTarget = autoGrabLSHeight;
+            linearSlide.setTargetPosition(linearSlideTarget);
+            linearSlide.setPower(0.6);
+        }
+        telemetry.addData(" specimen claw open", SpecimenclawIsOpen);
+        telemetry.addData("Distance(specimen claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
+        telemetry.addData("Sample claw closed", ClawLoaded);
+        telemetry.addData("Distance(sample claw)", sensorDistance.getDistance(DistanceUnit.CM));
+        telemetry.addData("Sample Claw Color vals, r", sensorColor.red());
+        telemetry.addData("Sample Claw Color vals, g", sensorColor.green());
+        telemetry.addData("Sample Claw Color vals, b", sensorColor.blue());
+        telemetry.addData("Sample Color",sampleColor);
+    //////////////////IMU Reset///////////////////////////
+    if(gamepad1.right_trigger > 0.6 && gamepad1.left_trigger > 0.6) {
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+    }
     telemetry.addData("current angle", currentAngle);
     }
 

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleopLM2")
+@Autonomous(preselectTeleOp = "TeleopFINAL4s")
 public class AutoObservationSide_4S_V4 extends LinearOpMode {
 
     RevBlinkinLedDriver lights;
@@ -132,22 +132,22 @@ public class AutoObservationSide_4S_V4 extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-50.75,8), Math.toRadians(180),
+                        new Vector2d(-50,8), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,16), Math.toRadians(90),
+                        new Vector2d(-54,16), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,48), Math.toRadians(270),
+                        new Vector2d(-54,48), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(-56.25,44), Math.toRadians(270),
+                        new Vector2d(-55,44), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -249,16 +249,17 @@ public class AutoObservationSide_4S_V4 extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToSplineHeading(
-                        new Pose2d(-3,48, Math.toRadians(0)), Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
                 .splineToConstantHeading(
-                        new Vector2d(-2,26), Math.toRadians(270),
+                        new Vector2d(-15,63), Math.toRadians(290),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
+                .splineToSplineHeading(
+                        new Pose2d(-2,26, Math.toRadians(0)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+
                 .addDisplacementMarker(() -> {
                     robot.linearSlide.setTargetPosition(875);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -312,24 +313,21 @@ public class AutoObservationSide_4S_V4 extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToSplineHeading(
-                        new Pose2d(-3,48, Math.toRadians(0)), Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
                 .splineToConstantHeading(
-                        new Vector2d(-7,26), Math.toRadians(270),
+                        new Vector2d(-15,63), Math.toRadians(290),
                         SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
+                .splineToSplineHeading(
+                        new Pose2d(-7,26, Math.toRadians(0)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+
                 .addDisplacementMarker(() -> {
                     robot.linearSlide.setTargetPosition(875);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.linearSlide.setPower(1);
-                })
-                .addDisplacementMarker(() -> {
-                    robot.claw.setPosition(ClawClosed);
-                    robot.intakeArm.setPosition(IntakeArmUp);
                 })
 
 
