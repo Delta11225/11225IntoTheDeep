@@ -1,0 +1,10 @@
+---
+maxVel: 55.0
+maxAccel: 55.0
+maxAngVel: 4.71238898038469
+maxAngAccel: 3.9269908169872414
+robotLength: 16.0
+robotWidth: 16.0
+driveType: "MECANUM"
+trackWidth: 18.0
+lateralMultiplier: 1.0
