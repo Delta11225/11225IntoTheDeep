@@ -88,7 +88,7 @@ public class TeleopFINAL extends LinearOpMode {
 
     //ascent arm encoder locations
     int armHang = 34;
-    int armHook = 8415;
+    int armHook = 8215;
     int store = 0;
 
     //intake arm variables
@@ -368,7 +368,7 @@ public class TeleopFINAL extends LinearOpMode {
 
             AscentArmDown = false;
         }
-        if (matchtime.seconds()<90 && matchtime.seconds()>91)
+        if (matchtime.seconds()>90 && matchtime.seconds()<91)
             gamepad2.rumble(500);
 
 
