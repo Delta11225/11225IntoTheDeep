@@ -344,13 +344,13 @@ public class TeleopFINAL extends LinearOpMode {
         //////////////GAMEPAD 1//////////////
 
 /////////////////////////////////////Ascent Arm Auto//////////////////////////////////////////////////////
-        if (gamepad1.dpad_down & gamepad1.a) {
+        if (gamepad1.dpad_down && gamepad1.a) {
             ascentArm.setTargetPosition(store);
             ascentArm.setPower(0.5);
             AscentArmDown = true;
         }
 
-        if (gamepad1.dpad_left & gamepad1.b) {
+        if ((gamepad1.dpad_left && gamepad1.b) || (gamepad1.left_trigger>0.5 && gamepad1.right_trigger>0.5)) {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHook);
             ArmClaw.setPosition(ArmClawClosed);
@@ -358,7 +358,7 @@ public class TeleopFINAL extends LinearOpMode {
             AscentArmDown = false;
         }
 
-        if (gamepad1.dpad_up & gamepad1.y) {
+        if (gamepad1.dpad_up && gamepad1.y) {
             ascentArm.setPower(1);
             ascentArm.setTargetPosition(armHang);
             //close specimen claw for safe hanging
@@ -495,7 +495,7 @@ public class TeleopFINAL extends LinearOpMode {
 
 ////////////////////////////////////////SPECIMEN CLAW AUTOGRAB///////////////////////
         //make sure to raise linear slide above wall after grabbing
-        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 5 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
+        if (sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM) <= 6 && SpecimenclawIsOpen==true && slideDown == true && clawLastClosed.seconds() > 1 && AscentArmDown == true && ArmUp == true) {
             gamepad2.rumble(500);
             SpecimenClaw.setPosition(ClawClosed);//Claw Closed
             clawLastClosed.reset();
@@ -505,7 +505,7 @@ public class TeleopFINAL extends LinearOpMode {
             slideDown = false;
             linearSlideTarget = autoGrabLSHeight;
             linearSlide.setTargetPosition(linearSlideTarget);
-            linearSlide.setPower(0.6);
+            linearSlide.setPower(1);
         }
         telemetry.addData(" specimen claw open", SpecimenclawIsOpen);
         telemetry.addData("Distance(specimen claw)", sensorDistanceSpecimenClaw.getDistance(DistanceUnit.CM));
