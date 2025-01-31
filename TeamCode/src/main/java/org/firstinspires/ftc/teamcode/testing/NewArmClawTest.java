@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-//@Disabled
+@Disabled
 @TeleOp
 public class NewArmClawTest extends OpMode {
 

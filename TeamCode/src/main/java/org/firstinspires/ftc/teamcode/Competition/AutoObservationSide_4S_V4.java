@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utility.HardwareITD;
 
-@Autonomous(preselectTeleOp = "TeleopFINAL4s")
+@Autonomous(preselectTeleOp = "TeleopFINAL4S")
 public class AutoObservationSide_4S_V4 extends LinearOpMode {
 
     RevBlinkinLedDriver lights;
@@ -59,16 +59,18 @@ public class AutoObservationSide_4S_V4 extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
 
-        //Trajectory Sequence for deploying preloaded specimen
+        //Deploys preloaded specimen
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
                 //closing claw and lifting arm up
                 .addDisplacementMarker(()->{
                     robot.claw.setPosition(ClawClosed);
                     robot.intakeArm.setPosition(IntakeArmUp);
                 })
-                //approach submersible
+
+                //approaches submersible
                 .lineToConstantHeading(new Vector2d(1.5, 29))
-                //start lifting slide when robot is at (-12,64) which is close to start pose
+
+                //start lifting slide when robot is at (-12,64)
                 .addSpatialMarker(new Vector2d(-12, 64), () -> {
                     robot.linearSlide.setTargetPosition(2250);
                     robot.linearSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);

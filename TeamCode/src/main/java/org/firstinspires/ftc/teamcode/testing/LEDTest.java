@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-//@Disabled
+@Disabled
 @TeleOp
 public class LEDTest extends OpMode {
 

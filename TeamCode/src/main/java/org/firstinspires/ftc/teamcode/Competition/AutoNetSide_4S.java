@@ -22,7 +22,7 @@ public class AutoNetSide_4S extends LinearOpMode {
 
     double IntakeArmUp = .86;
     double IntakeArmHold = .6;
-    double IntakeArmDown = .5;
+    double IntakeArmDown = .52; //was .5 originally
 
     double ArmClawOpen = 0;
     double ArmClawClosed = 0.5;
@@ -94,7 +94,7 @@ public class AutoNetSide_4S extends LinearOpMode {
         //goes to grab 2nd sample
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end(),Math.toRadians(270)) //(57, 54)
             .splineToLinearHeading(new Pose2d(50.25,47, Math.toRadians(269.5)), Math.toRadians(180),
-                 SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                 SampleMecanumDrive.getVelocityConstraint(32, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                  SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
             )
                 .addSpatialMarker(new Vector2d(57,54),() ->{
@@ -142,8 +142,8 @@ public class AutoNetSide_4S extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToSplineHeading(new Pose2d(60,46, Math.toRadians(270)), Math.toRadians(315),
-                        SampleMecanumDrive.getVelocityConstraint(27, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToSplineHeading(new Pose2d(61.5,46, Math.toRadians(270)), Math.toRadians(315),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .addSpatialMarker(new Vector2d(55,54),() ->{
@@ -174,7 +174,7 @@ public class AutoNetSide_4S extends LinearOpMode {
                 })
                 .splineToConstantHeading(
                         new Vector2d(58,57), Math.toRadians(45),
-                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 
@@ -194,8 +194,8 @@ public class AutoNetSide_4S extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToSplineHeading(new Pose2d(60.5,41, Math.toRadians(300)), Math.toRadians(300),
-                        SampleMecanumDrive.getVelocityConstraint(27, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToSplineHeading(new Pose2d(61.25,41.5, Math.toRadians(300)), Math.toRadians(300),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .addSpatialMarker(new Vector2d(56,55),() ->{
@@ -211,7 +211,7 @@ public class AutoNetSide_4S extends LinearOpMode {
 
         //goes to high bucket with 4th sample
         Trajectory traj9 = drive.trajectoryBuilder(traj7.end(),Math.toRadians(130))
-                .splineToSplineHeading(new Pose2d(56,55, Math.toRadians(45)), Math.toRadians(45),
+                .splineToSplineHeading(new Pose2d(56,55, Math.toRadians(45)), Math.toRadians(70),//was 45
                         SampleMecanumDrive.getVelocityConstraint(27, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -225,7 +225,7 @@ public class AutoNetSide_4S extends LinearOpMode {
                 })
                 .splineToConstantHeading(
                         new Vector2d(58,57), Math.toRadians(45),
-                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
 

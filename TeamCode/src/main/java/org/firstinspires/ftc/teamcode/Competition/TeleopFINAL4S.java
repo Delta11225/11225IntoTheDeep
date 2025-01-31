@@ -27,7 +27,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 @TeleOp
 //@Disabled
-public class TeleopFINAL extends LinearOpMode {
+public class TeleopFINAL4S extends LinearOpMode {
 
     //LED lights
     RevBlinkinLedDriver lights;
@@ -248,8 +248,8 @@ public class TeleopFINAL extends LinearOpMode {
 //        telemetry.addData("Theta", theta);
 
         //update to change starting orientation if needed
-        forward = -gamepad1.left_stick_y; //left joystick up
-        right = gamepad1.left_stick_x; //left joystick right
+        forward = -gamepad1.left_stick_x; //left joystick up
+        right = -gamepad1.left_stick_y; //left joystick right
         clockwise = gamepad1.right_stick_x; //right joystick right (up on FTC Dashboard)
 
         temp = (forward * Math.cos(theta) - right * Math.sin(theta));
